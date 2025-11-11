@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+plotly
+dash
+pandas
+requests
+gunicorn
