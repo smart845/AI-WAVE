@@ -1,0 +1,8 @@
+streamlit
+pandas
+pandas-ta
+plotly
+requests
+numpy
+flask
+gunicorn
