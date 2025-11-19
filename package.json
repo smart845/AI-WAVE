@@ -1,0 +1,11 @@
+{
+  "name": "bybit-sniper-terminal",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vercel dev",
+    "start": "vercel dev",
+    "build": "echo 'Static front + serverless functions, no build step'"
+  },
+  "dependencies": {}
+}

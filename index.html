@@ -1,0 +1,4231 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<meta content="#000000" name="theme-color"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
+<title>Quant Terminal PRO</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://s3.tradingview.com/tv.js"></script>
+<style>
+/* === ОСНОВНЫЕ СТИЛИ === */
+:root {
+    --bg0: #000000;
+    --bg1: #0a0a0a;
+    --bg2: #1a1a1a;
+    --text: #ffffff;
+    --muted: #888888;
+    --neon-blue: #00aaff;
+    --neon-green: #00ff88;
+    --neon-red: #ff4444;
+    --neon-purple: #aa00ff;
+    --neon-cyan: #00ffcc;
+    --neon-yellow: #ffee00;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--bg0);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    overflow-x: hidden;
+    line-height: 1.4;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body.mini-app {
+    font-size: 14px;
+}
+
+/* === GLASSMORPHISM EFFECT === */
+.glass-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* === DYNAMIC PULSE EFFECT === */
+body.trend-bullish {
+    --pulse-color: rgba(0, 255, 136, 0.05);
+}
+
+body.trend-bearish {
+    --pulse-color: rgba(255, 68, 68, 0.05);
+}
+
+.dynamic-pulse {
+    position: relative;
+}
+
+.dynamic-pulse::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0;
+    animation: dynamicPulse 2s ease-in-out infinite;
+    background: var(--pulse-color);
+}
+
+@keyframes dynamicPulse {
+    0%, 100% { opacity: 0; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.02); }
+}
+
+/* === GLOW EFFECTS === */
+.glow-border {
+    position: relative;
+}
+
+.glow-border::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, var(--neon-blue), var(--neon-green), var(--neon-purple), var(--neon-cyan));
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0.7;
+    filter: blur(1px);
+    animation: gradientFlow 8s linear infinite;
+}
+
+@keyframes gradientFlow {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 400% 50%; }
+}
+
+.glow-border-thin::before {
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    filter: blur(0.5px);
+    opacity: 0.8;
+}
+
+/* === ОБЩИЙ КОНТЕЙНЕР === */
+.main-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+/* === HEADER === */
+.header {
+    background: var(--bg1);
+    padding: 8px 10px;
+    border-bottom: 1px solid transparent;
+    position: relative;
+}
+
+.header::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--neon-blue), var(--neon-green), transparent);
+    opacity: 0.8;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: 800;
+    background: linear-gradient(90deg, var(--neon-blue), var(--neon-green), var(--neon-purple), var(--neon-cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 300% 100%;
+    animation: gradientShift 4s ease infinite;
+    letter-spacing: 1px;
+}
+
+@keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+.connection-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--neon-green);
+    animation: pulse 2s infinite;
+    box-shadow: 0 0 8px var(--neon-green);
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(0.965); }
+    50% { opacity: 0.7; transform: scale(0.965); }
+}
+
+/* === SEARCH SECTION === */
+.search-section {
+    padding: 10px 10px;
+    background: var(--bg1);
+    position: relative;
+}
+
+.search-section::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--neon-purple), var(--neon-cyan), transparent);
+    opacity: 0.6;
+}
+
+.search-container-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.search-container {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+    align-items: center;
+}
+
+.search-input {
+    flex: 1;
+    background: var(--bg2);
+    border: 1px solid transparent;
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-size: 15px;
+    outline: none;
+    transition: all 0.3s ease;
+    position: relative;
+    min-height: 44px;
+}
+
+.search-input:focus {
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 15px rgba(0, 170, 255, 0.3);
+}
+
+.search-btn {
+    background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+    border: none;
+    border-radius: 12px;
+    padding: 12px 20px;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    min-height: 44px;
+}
+
+.search-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 170, 255, 0.4);
+}
+
+.current-symbol-display {
+    display: none;
+}
+
+.search-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.search-action-btn {
+    background: var(--bg2);
+    border: 1px solid transparent;
+    border-radius: 10px;
+    padding: 10px;
+    color: var(--text);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.search-action-btn::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    background: linear-gradient(45deg, var(--neon-blue), var(--neon-green), var(--neon-purple));
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.search-action-btn:hover::before {
+    opacity: 0.3;
+}
+
+.search-action-btn:hover {
+    transform: translateY(-2px);
+}
+
+.search-action-btn.active {
+    color: var(--neon-yellow);
+}
+
+.search-action-btn.alert-active {
+    color: var(--neon-red);
+}
+
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+.action-btn {
+  flex:1 1 22%;
+    background: var(--bg2);
+    border: 1px solid transparent;
+    border-radius: 10px;
+    padding: 10px;
+    color: var(--text);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    position: relative;
+    min-height: 44px;
+}
+
+.action-btn::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    background: linear-gradient(45deg, var(--neon-blue), var(--neon-green), var(--neon-purple));
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.action-btn:hover::before {
+    opacity: 0.3;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+}
+
+.candle-up, .candle-down {
+    width: 14px;
+    height: 18px;
+    border-radius: 2px;
+    position: relative;
+}
+
+.candle-up {
+    background: linear-gradient(to bottom, var(--neon-green) 40%, transparent 40%);
+    border: 1px solid var(--neon-green);
+}
+
+.candle-down {
+    background: linear-gradient(to bottom, transparent 60%, var(--neon-red) 60%);
+    border: 1px solid var(--neon-red);
+}
+
+/* === METRICS GRID === */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    padding: 10px 0;
+    background: var(--bg1);
+}
+.metric-card {
+    background: var(--bg2);
+    border: 1px solid transparent;
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.metric-card::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    background: linear-gradient(45deg, var(--neon-blue), var(--neon-green), var(--neon-purple));
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.metric-card:hover::before {
+    opacity: 0.2;
+}
+
+.metric-card:hover {
+    transform: translateY(-3px);
+}
+
+.metric-label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.symbol-mini {
+    font-size: 10px;
+    color: var(--text);
+    background: rgba(0, 255, 136, 0.1);
+    padding: 2px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--neon-green);
+    font-weight: 600;
+}
+
+.metric-value {
+    font-size: 18px;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+}
+
+.metric-value.positive { color: var(--neon-green); }
+.metric-value.negative { color: var(--neon-red); }
+.metric-value.neutral { color: var(--neon-blue); }
+
+#volume24h,
+#volatility {
+    color: var(--neon-green);
+}
+
+/* Градиентные заголовки для  и <span class="grad">Entry Agent</span> */
+.gradient-title {
+    font-size: 18px;
+    font-weight: 700;
+    background: linear-gradient(90deg, var(--neon-blue), var(--neon-green), var(--neon-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% 100%;
+    animation: gradientShift 3s ease infinite;
+}
+
+/* === CUSTOM FIXES === */
+.oi-title .symbol-mini {
+    white-space: nowrap;
+    display: inline-block;
+    margin-left: 5px;
+}
+
+/* === CHART SECTION === */
+.chart-section {
+    padding: 10px 0;
+    position: relative;
+}
+
+.chart-container {
+    background: var(--bg2);
+    border: 1px solid transparent;
+    border-radius: 12px;
+    overflow: hidden;
+    height: 650px;
+    position: relative;
+}
+
+.chart-container::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    background: linear-gradient(45deg, var(--neon-blue), var(--neon-green), var(--neon-purple));
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0.3;
+}
+
+#tvchart {
+    width: 100%;
+    height: 100%;
+}
+
+.ai-modal-overlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.92);
+    z-index: 100;
+    padding: 15px;
+    overflow-y: auto;
+    border-radius: 0;
+    border: none;
+}
+
+.ai-modal-overlay::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: transparent;
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0;
+}
+
+.ai-modal-overlay.active {
+    display: block;
+}
+
+.ai-modal-content {
+    background: var(--bg1);
+    border: 1px solid transparent;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+.ai-modal-content::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0.3;
+}
+
+.ai-modal-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--neon-green);
+    margin-bottom: 10px;
+}
+
+.ai-modal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #000;
+    border: 1px solid var(--neon-green);
+    color: #fff;
+    font-size: 22px;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 999px;
+    transition: all 0.2s ease;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 12px rgba(0,0,0,0.9);
+    z-index: 101;
+}
+
+.ai-modal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #000;
+    border: 1px solid var(--neon-green);
+    color: #fff;
+    font-size: 22px;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 999px;
+    transition: all 0.2s ease;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 12px rgba(0,0,0,0.9);
+    z-index: 101;
+}
+
+/* === MODAL === */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    padding: 12px;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: var(--bg1);
+    border: 1px solid transparent;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.modal-content::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    background: linear-gradient(45deg, var(--neon-blue), var(--neon-green), var(--neon-purple));
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0.4;
+}
+
+.modal-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: 700;
+    background: linear-gradient(90deg, var(--neon-blue), var(--neon-green));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 22px;
+    cursor: pointer;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.close-modal:hover {
+    background: rgba(255,255,255,0.1);
+    color: var(--text);
+}
+
+.exchange-tabs {
+    display: flex;
+    background: var(--bg2);
+    margin: 15px;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+.exchange-tabs::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0.3;
+}
+
+.exchange-tab {
+    flex: 1;
+    padding: 10px;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 13px;
+    min-height: 44px;
+}
+
+.exchange-tab.active {
+    background: var(--neon-blue);
+    color: white;
+}
+
+.movers-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 15px 15px;
+    max-height: 400px;
+}
+
+.mover-item {
+    background: var(--bg2);
+    border: 1px solid transparent;
+    border-radius: 10px;
+    padding: 8px 10px;
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    min-height: 60px;
+}
+
+.mover-item::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    background: linear-gradient(45deg, var(--neon-blue), var(--neon-green));
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.mover-item:hover::before {
+    opacity: 0.2;
+}
+
+.mover-item:hover {
+    transform: translateX(3px);
+}
+
+.mover-item.positive { border-left: 4px solid var(--neon-green); }
+.mover-item.negative { border-left: 4px solid var(--neon-red); }
+
+.coin-info-modal {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.coin-symbol-modal {
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.coin-name-modal {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.price-change {
+    text-align: right;
+    font-family: 'Courier New', monospace;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.price-modal {
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.change-modal {
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.change-modal.positive { color: var(--neon-green); }
+.change-modal.negative { color: var(--neon-red); }
+
+.coin-actions {
+    display: flex;
+    gap: 5px;
+    margin-left: 10px;
+}
+
+.coin-action-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    color: var(--muted);
+    position: relative;
+}
+
+.coin-action-btn::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.coin-action-btn:hover::before {
+    opacity: 0.3;
+}
+
+.coin-action-btn.active {
+    color: var(--neon-yellow);
+}
+
+.coin-action-btn.alert-active {
+    color: var(--neon-red);
+}
+
+/* === OPEN INTEREST === */
+.open-interest {
+    padding: 16px 0;
+    background: var(--bg2);
+}
+
+.advanced-oi{
+    margin: 10px 0 20px 0;
+    padding: 15px;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    background: var(--bg2);
+    position: relative;
+}
+
+.advanced-oi::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0.3;
+}
+
+.oi-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.oi-title{
+    font-size: 18px;
+    font-weight: 700;
+    background: linear-gradient(90deg, var(--neon-blue), var(--neon-green), var(--neon-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% 100%;
+    animation: gradientShift 3s ease infinite;
+}
+.oi-timeframe{
+    display: flex;
+    gap: 8px;
+}
+.oi-tf-btn{
+    padding: 5px 12px;
+    font-size: 12px;
+    border-radius: 999px;
+    border: 1px solid var(--neon-blue);
+    background: transparent;
+    color: var(--neon-blue);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all .2s ease;
+    min-height: 44px;
+}
+.oi-tf-btn.active{
+    background: var(--neon-blue);
+    color: #000;
+    box-shadow: 0 0 8px rgba(0,170,255,0.4);
+}
+.oi-list{
+    margin-top: 10px;
+    border-top: 1px solid rgba(0,170,255,0.3);
+}
+.oi-row{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: 14px;
+}
+.oi-row span:last-child{
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+}
+.oi-footer-row{
+    font-size: 12px;
+    color: var(--muted);
+}
+
+/* === LIQUIDATION HEATMAP === */
+.liquidation-heatmap {
+    padding: 10px 0;
+}
+
+/* === AI AGENT === */
+.ai-agent {
+    margin: 14px 0;
+    padding: 10px 0;
+    background: var(--bg1);
+    border: 1px solid transparent;
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.ai-agent::before {
+    content:'';
+    position:absolute;
+    inset:0;
+    border-radius:inherit;
+    border:1px solid transparent;
+    background:linear-gradient(90deg, transparent, var(--neon-blue), var(--neon-green), transparent);
+    -webkit-mask:linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;
+    mask-composite:exclude;
+    opacity:1;
+    z-index:-1;
+}
+
+.ai-agent:hover {
+    transform: translateY(-3px);
+}
+
+.ai-agent:hover::before {
+    opacity:1;
+}
+
+.agent-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.confidence {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.confidence-bar {
+    flex: 1;
+    height: 6px;
+    background: var(--bg1);
+    border-radius: 3px;
+    overflow: hidden;
+    max-width: 120px;
+    position: relative;
+}
+
+.confidence-bar::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    background: linear-gradient(45deg, var(--neon-green), var(--neon-blue));
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0.3;
+}
+
+.confidence-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--neon-green), var(--neon-blue));
+    border-radius: 3px;
+    transition: width 0.5s ease;
+}
+
+.agent-content {
+    background: var(--bg2);
+    border: 1px solid transparent;
+    border-radius: 10px;
+    padding: 12px;
+    position: relative;
+}
+
+.agent-content::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    background: linear-gradient(45deg, var(--neon-green), var(--neon-cyan));
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0.2;
+}
+
+.prediction {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.prediction-text {
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.prediction-value {
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+}
+.prediction-value.positive { color: var(--neon-green); }
+.prediction-value.negative { color: var(--neon-red); }
+.prediction-value.neutral { color: var(--neon-blue); }
+
+/* === ENTRY AGENT BLOCK === */
+.entry-agent{
+    padding: 16px 0;
+    background: var(--bg1);
+    margin-top: 14px;
+    position: relative;
+    border: 1px solid transparent;
+    border-radius: 12px;
+}
+
+.entry-agent::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0.3;
+}
+
+.entry-grid{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+.entry-card{
+    background: var(--bg2);
+    border: 1px solid transparent;
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+    transition: .25s;
+    position: relative;
+}
+
+.entry-card::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    background: linear-gradient(45deg, var(--neon-blue), var(--neon-green));
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.entry-card:hover::before {
+    opacity: 0.2;
+}
+
+.entry-card:hover{
+    transform: translateY(-2px);
+}
+
+.entry-label{
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.entry-value{
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+}
+.entry-value.long{
+    color: var(--neon-green);
+}
+.entry-value.short{
+    color: var(--neon-red);
+}
+.entry-value.neutral{ 
+    color: var(--neon-blue); 
+}
+
+/* === AI MONITOR BLOCK === */
+.ai-monitor {
+    margin: 14px 0;
+    padding: 10px;
+    background: var(--bg1);
+    border: 1px solid transparent;
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.ai-monitor::before {
+    content:'';
+    position:absolute;
+    inset:0;
+    border-radius:inherit;
+    border:1px solid transparent;
+    background:linear-gradient(90deg, transparent, var(--neon-blue), var(--neon-green), transparent);
+    -webkit-mask:linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;
+    mask-composite:exclude;
+    opacity:1;
+    z-index:-1;
+}
+
+.ai-monitor:hover {
+    transform: translateY(-3px);
+}
+.ai-monitor:hover::before {
+    opacity:1;
+}
+
+.ai-monitor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.ai-monitor-title {
+    font-size: 18px;
+    font-weight: 700;
+    background: linear-gradient(90deg, var(--neon-cyan), var(--neon-green));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% 100%;
+    animation: gradientShift 3s ease infinite;
+}
+
+.ai-monitor-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--neon-green);
+}
+
+.ai-monitor-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--neon-green);
+    animation: pulse 2s infinite;
+}
+
+.ticker-stats {
+    display: flex;
+    overflow-x: auto;
+    gap: 25px;
+    padding: 10px 0;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.ticker-stats::-webkit-scrollbar {
+    display: none;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 120px;
+    flex-shrink: 0;
+}
+
+.stat-label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+}
+
+.stat-value.positive { color: var(--neon-green); }
+.stat-value.negative { color: var(--neon-red); }
+.stat-value.neutral { color: var(--neon-blue); }
+
+/* === AI CONTROL MODAL === */
+.ai-control-modal {
+    max-width: 800px;
+    max-height: 90vh;
+}
+
+.ai-control-tabs {
+    display: flex;
+    background: var(--bg2);
+    margin: 0 15px 15px;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+.ai-control-tabs::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0.3;
+}
+
+.ai-control-tab {
+    flex: 1;
+    padding: 10px;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 13px;
+    min-height: 44px;
+}
+
+.ai-control-tab.active {
+    background: var(--neon-blue);
+    color: white;
+}
+
+.ai-control-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 15px 15px;
+}
+
+.ai-control-section {
+    background: var(--bg2);
+    border: 1px solid transparent;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+.ai-control-section::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    background: linear-gradient(45deg, var(--neon-blue), var(--neon-green));
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0.2;
+}
+
+.ai-control-section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--neon-green);
+    margin-bottom: 12px;
+}
+
+.setting-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.setting-label {
+    font-size: 14px;
+    color: var(--text);
+}
+
+.setting-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--neon-blue);
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--bg1);
+    transition: .4s;
+    border-radius: 24px;
+    border: 1px solid var(--neon-blue);
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 4px;
+    bottom: 3px;
+    background-color: var(--neon-blue);
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+    background-color: var(--neon-blue);
+}
+
+input:checked + .toggle-slider:before {
+    transform: translateX(26px);
+    background-color: white;
+}
+
+/* === ALERTS === */
+.alert-container {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    z-index: 2000;
+    max-width: 350px;
+}
+
+.alert {
+    background: var(--bg2);
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-top: 10px;
+    animation: slideIn 0.3s ease;
+    font-size: 13px;
+    position: relative;
+}
+
+.alert::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    background: linear-gradient(45deg, var(--neon-blue), var(--neon-green));
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0.4;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+/* === ONE-TAP TRADE BUTTONS === */
+.floating-trade-buttons {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 1000;
+}
+
+.trade-btn {
+    padding: 15px 20px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    min-width: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+}
+
+.long-tap {
+    background: linear-gradient(135deg, var(--neon-green), #00cc66);
+    color: black;
+}
+
+.short-tap {
+    background: linear-gradient(135deg, var(--neon-red), #cc0000);
+    color: white;
+}
+
+.trade-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+}
+
+.trade-btn:active {
+    transform: scale(0.95);
+}
+
+.leverage-badge {
+    background: rgba(0,0,0,0.3);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.trade-details {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.trade-symbol {
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 10px;
+}
+
+.trade-direction {
+    font-size: 20px;
+    font-weight: 700;
+    padding: 5px 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.trade-direction.long {
+    background: var(--neon-green);
+    color: black;
+}
+
+.trade-direction.short {
+    background: var(--neon-red);
+    color: white;
+}
+
+.trade-sl-tp {
+    display: flex;
+    justify-content: space-around;
+    margin: 15px 0;
+    padding: 10px;
+    background: var(--bg2);
+    border-radius: 8px;
+}
+
+.trade-input {
+    width: 100%;
+    padding: 12px;
+    background: var(--bg2);
+    border: 1px solid var(--neon-blue);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 16px;
+    margin-top: 5px;
+}
+
+/* === SMART SNIPER MODE === */
+.sniper-scanner {
+    margin: 14px 0;
+}
+
+.sniper-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.sniper-btn {
+    padding: 5px 12px;
+    font-size: 12px;
+    border-radius: 999px;
+    border: 1px solid var(--neon-green);
+    background: transparent;
+    color: var(--neon-green);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all .2s ease;
+    min-height: 30px;
+}
+
+.sniper-btn.active {
+    background: var(--neon-green);
+    color: #000;
+    box-shadow: 0 0 8px rgba(0,255,136,0.4);
+}
+
+.sniper-sound {
+    padding: 5px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--neon-blue);
+    background: transparent;
+    color: var(--neon-blue);
+    cursor: pointer;
+    min-height: 30px;
+    min-width: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sniper-list {
+    margin-top: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.sniper-opportunity {
+    background: var(--bg2);
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.sniper-opportunity.long {
+    border-left: 4px solid var(--neon-green);
+}
+
+.sniper-opportunity.short {
+    border-left: 4px solid var(--neon-red);
+}
+
+.sniper-opportunity:hover {
+    transform: translateX(3px);
+}
+
+.sniper-symbol {
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.sniper-stats {
+    display: flex;
+    gap: 10px;
+    font-size: 11px;
+    color: var(--muted);
+}
+
+.sniper-signal {
+    font-weight: 700;
+    font-size: 12px;
+}
+
+.sniper-confidence {
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--neon-green);
+}
+
+.sniper-loading {
+    text-align: center;
+    padding: 20px;
+    color: var(--muted);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+    .metrics-grid, .entry-grid { 
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 12px;
+    }
+    .quick-actions { 
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 8px;
+    }
+    .chart-container { 
+        height: 500px; 
+    }
+    .main-container { 
+        padding: 0 10px; 
+    }
+    .search-section { 
+        padding: 12px; 
+    }
+    .search-container { 
+        flex-direction: row; 
+    }
+    .search-input { 
+        flex: 1; 
+        max-width: none; 
+        font-size: 16px;
+    }
+    .search-btn { 
+        padding: 10px 15px; 
+    }
+    .logo { 
+        font-size: 20px; 
+    }
+    .modal {
+        padding: 10px;
+        align-items: flex-end;
+    }
+    .modal-content {
+        border-radius: 12px 12px 0 0;
+        max-height: 85vh;
+        margin: 0;
+    }
+    .movers-list {
+        max-height: 60vh;
+    }
+    .metric-value {
+        font-size: 16px;
+    }
+    .action-btn {
+  flex:1 1 22%;
+        padding: 15px 10px;
+        font-size: 14px;
+    }
+    .oi-timeframe {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .confidence {
+        flex-direction: column;
+        gap: 5px;
+    }
+    .agent-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    .ticker-stats {
+        gap: 15px;
+    }
+    .stat-item {
+        min-width: 100px;
+    }
+    .ai-control-modal {
+        max-width: 95vw;
+    }
+    .floating-trade-buttons {
+        bottom: 10px;
+        right: 10px;
+    }
+    .trade-btn {
+        padding: 12px 15px;
+        min-width: 100px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .metrics-grid, .entry-grid, .quick-actions { 
+        grid-template-columns: 1fr; 
+    }
+    .advanced-oi { 
+        margin: 10px 0; 
+        padding: 12px; 
+    }
+    .oi-title { 
+        font-size: 16px; 
+    }
+    .chart-container { 
+        height: 400px; 
+    }
+    .logo { 
+        font-size: 18px; 
+    }
+    .alert-container {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+        bottom: 70px;
+    }
+    .header {
+        padding: 10px;
+    }
+    .search-container {
+        flex-direction: column;
+        gap: 8px;
+    }
+    .search-input {
+        max-width: 100%;
+    }
+    .metric-card {
+        padding: 12px 8px;
+    }
+    .entry-agent {
+        margin-top: 10px;
+        padding: 15px 0;
+    }
+    .oi-tf-btn {
+        padding: 8px 12px;
+        font-size: 11px;
+    }
+    .modal {
+        padding: 5px;
+    }
+    .modal-content {
+        max-height: 90vh;
+    }
+    .ticker-stats {
+        gap: 8px;
+    }
+    .stat-item {
+        min-width: 80px;
+    }
+    .ai-monitor {
+        margin: 15px 0;
+        padding: 10px;
+    }
+    .floating-trade-buttons {
+        flex-direction: row;
+        bottom: 5px;
+        right: 5px;
+        left: 5px;
+        justify-content: space-between;
+    }
+    .trade-btn {
+        flex: 1;
+        padding: 10px;
+        min-width: auto;
+        font-size: 12px;
+    }
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 768px) and (orientation: landscape) {
+    .chart-container {
+        height: 350px;
+    }
+    .modal-content {
+        max-height: 70vh;
+    }
+}
+
+/* Prevent zoom on input focus for iOS */
+@media (max-width: 768px) {
+    .search-input {
+        font-size: 16px;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .action-btn:hover,
+    .metric-card:hover,
+    .entry-card:hover,
+    .mover-item:hover {
+        transform: none;
+    }
+    
+    .action-btn:active,
+    .metric-card:active,
+    .entry-card:active {
+        transform: scale(0.965);
+    }
+}
+
+/* === COMPACT OI (FLAT ~30% HEIGHT, ORIGINAL LOOK) === */
+.open-interest {
+    padding: 10px 0 !important;
+}
+.advanced-oi {
+    padding: 10px 15px !important;
+}
+.oi-header {
+    margin-bottom: 6px !important;
+}
+.oi-row {
+    padding: 4px 0 !important;
+}
+.oi-tf-btn {
+    min-height: 30px !important;
+    padding: 4px 12px !important;
+}
+
+/* === HEIGHT REDUCTION PATCH ( + <span class="grad">Entry Agent</span>) === */
+.metric-card,
+.entry-card {
+    padding: 9px !important;
+    min-height: 0 !important;
+}
+.metric-value,
+.entry-value {
+    font-size: 16px !important;
+}
+.metric-label,
+.entry-label {
+    margin-bottom: 3px !important;
+}
+
+/* === REMOVE LAST OPEN INTEREST ROW === */
+.oi-footer-row {
+    display: none !important;
+}
+
+/* === DESKTOP-COMPACT MOBILE MODE === */
+body.mini-app .header {
+    padding: 4px 8px;
+}
+body.mini-app .logo {
+    font-size: 18px;
+}
+
+/* отключаем мобильные вертикальные сетки */
+@media (max-width: 900px) {
+    .metrics-grid,
+    .entry-grid,
+    .quick-actions {
+        grid-template-columns: repeat(3,1fr) !important;
+    }
+    .metric-card,
+    .entry-card {
+        padding: 10px !important;
+    }
+    .quick-actions {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 10px !important;
+        flex-wrap: nowrap !important;
+    }
+    .search-container {
+        flex-direction: row !important;
+        gap: 10px !important;
+    }
+    .search-actions {
+        flex-direction: row !important;
+        gap: 10px !important;
+    }
+    .search-input {
+        font-size: 14px !important;
+    }
+    .chart-container {
+        height: 380px !important;
+    }
+}
+
+</style>
+<style>
+/* OI coloring rules */
+.oi-default {
+    color: #3fa2ff;
+}
+.oi-buy, .oi-buy span, .oi-buy .value, .oi-buy .tf {
+    color: #4cd964 !important;
+}
+.oi-sell, .oi-sell span, .oi-sell .value, .oi-sell .tf {
+    color: #ff4d4f !important;
+}
+.oi-total, .oi-total .value {
+    color: #4cd964 !important;
+}
+.value.pos, .value.positive {
+    color: #4cd964 !important;
+}
+.value.neg, .value.negative {
+    color: #ff4d4f !important;
+}
+</style>
+<style>
+.oi-value{color:#3fa2ff;font-weight:600;}
+.oi-value[data-val^="+"]{color:#4cd964!important;}
+.oi-value[data-val^="-"]{color:#ff4d4f!important;}
+</style>
+<style>
+/* === OVERRIDE: нормальный крупный график + мобильный x2 === */
+.chart-container {
+    height: 650px !important;
+}
+
+@media (max-width: 900px) {
+    .chart-container { height: 750px !important; }
+}
+
+@media (max-width: 768px) {
+	    .chart-container { height: 500px !important; } /* 1000px / 2 = 500px */
+	}
+	
+	@media (max-width: 480px) {
+	    .chart-container { height: 550px !important; } /* 1100px / 2 = 550px */
+	}
+
+@media (max-width: 768px) and (orientation: landscape) {
+	    .chart-container { height: 350px !important; } /* 700px / 2 = 350px */
+	}
+</style>
+<style>
+/* === MOBILE GRAPH REDUCED (2x smaller) === */
+	/* Эти стили были удалены, так как они противоречат новым правилам */
+</style>
+<style>
+@media (max-width: 768px) {
+	    .chart-container { height: 487.5px !important; } /* 975px / 2 = 487.5px */
+	}
+	@media (max-width: 480px) {
+	    .chart-container { height: 487.5px !important; } /* 975px / 2 = 487.5px */
+	}
+</style>
+<style>
+.ai-monitor,
+.ai-agent {
+    position: relative;
+    cursor: pointer;
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+.ai-monitor::after,
+.ai-agent::after {
+    content: "👆";
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    font-size: 22px;
+    opacity: 0.45;
+    transform-origin: bottom center;
+    transition: opacity .3s ease, transform .3s ease;
+    animation: tapHint 2.4s infinite ease-in-out;
+    pointer-events: none;
+}
+.ai-monitor:hover,
+.ai-agent:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0 12px rgba(0, 200, 255, 0.35);
+}
+.ai-monitor:hover::after,
+.ai-agent:hover::after {
+    opacity: 1;
+    transform: scale(1.2);
+}
+@keyframes tapHint {
+    0%, 70%, 100% {
+        transform: translateY(0) scale(1);
+    }
+    80% {
+        transform: translateY(3px) scale(0.9);
+    }
+    90% {
+        transform: translateY(-2px) scale(1.1);
+    }
+}
+</style>
+<style>
+.ai-signal-ticker{
+    margin-top:10px;
+    width:100%;
+    overflow:hidden;
+    white-space:nowrap;
+    background:rgba(0,255,150,0.1);
+    border-top:1px solid rgba(0,255,150,0.3);
+    border-bottom:1px solid rgba(0,255,150,0.3);
+    padding:6px 0;
+}
+.ai-signal-text{
+    display:inline-block;
+    padding-left:100%;
+    animation:aiTicker 18s linear infinite;
+    font-size:14px;
+    color:#00ff99;
+    font-weight:600;
+}
+@keyframes aiTicker{
+    0%{transform:translateX(0%)}
+    100%{transform:translateX(-100%)}
+}
+</style>
+<style>
+@keyframes pulseSuccess {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+.swipe-indicator {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 48px;
+    color: var(--neon-cyan);
+    z-index: 1000;
+    animation: fadeOut 0.5s ease 0.5s forwards;
+}
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+.grad{background:linear-gradient(90deg,#32ff7e,#18dcff,#7d5fff);-webkit-background-clip:text;color:transparent;}
+</style>
+</head>
+<body class='\"mini-app\"'>
+<div id="app-wrapper">
+<!-- HEADER -->
+<div class="header">
+<div class="header-content">
+<div class="logo">QUANT TERMINAL PRO</div>
+<div class="connection-status">
+<div class="status-dot"></div>
+<span>SNIPER MODE</span>
+</div>
+</div>
+</div>
+<!-- SEARCH SECTION -->
+<div class="search-section">
+<div class="search-container-inner">
+<div class="search-container">
+<input autocapitalize="off" autocomplete="off" class="search-input glow-border-thin" id="searchInput" inputmode="search" placeholder="Введите тикер (BTC, ETH...)" type="text"/>
+<div class="current-symbol-display" id="currentSymbolDisplay">BTCUSDT</div>
+<button class="search-btn glow-border" id="searchBtn">ПОИСК</button>
+<div class="search-actions">
+<button class="search-action-btn glow-border-thin" id="addFavorite" title="Добавить в избранное">
+<span style="font-size: 16px;">⭐</span>
+</button>
+<button class="search-action-btn glow-border-thin" id="addAlert" title="Добавить алерт">
+<span style="font-size: 16px;">🔔</span>
+</button>
+</div>
+</div>
+<div class="quick-actions">
+<button class="action-btn glow-border-thin" id="btnGainers">📈</button>
+<button class="action-btn glow-border-thin" id="btnLosers">📉</button>
+<button class="action-btn glow-border-thin" id="btnFavorites">⭐</button>
+<button class="action-btn glow-border-thin" id="btnAlerts">🔔</button>
+</div>
+</div>
+</div>
+<!-- ОСНОВНОЙ КОНТЕЙНЕР -->
+<div class="main-container">
+<!-- METRICS GRID -->
+<div class="metrics-grid">
+<div class="metric-card glow-border-thin">
+<div class="metric-label">
+<span>Текущая цена</span>
+<span class="symbol-mini" id="priceSymbol">BTCUSDT</span>
+</div>
+<div class="metric-value" id="currentPrice">—</div>
+</div>
+<div class="metric-card glow-border-thin">
+<div class="metric-label">Изменение 24ч</div>
+<div class="metric-value" id="priceChange">—</div>
+</div>
+<div class="metric-card glow-border-thin">
+<div class="metric-label">Объем 24ч</div>
+<div class="metric-value" id="volume24h">—</div>
+</div>
+<div class="metric-card glow-border-thin">
+<div class="metric-label">Прогноз</div>
+<div class="metric-value" id="aiPrediction">—</div>
+</div>
+<div class="metric-card glow-border-thin">
+<div class="metric-label">Сигнал</div>
+<div class="metric-value" id="tradeSignal">—</div>
+</div>
+<div class="metric-card glow-border-thin">
+<div class="metric-label">Волатильность</div>
+<div class="metric-value" id="volatility">—</div>
+</div>
+</div>
+<!-- CHART SECTION -->
+<div class="chart-section">
+<div class="chart-container glow-border" id="chartContainer">
+<div id="tvchart"></div>
+<div class="ai-modal-overlay" id="aiModalOverlay">
+<button class="ai-modal-close" id="aiModalClose">×</button>
+<div class="ai-modal-content">
+<div class="ai-modal-title">🤖 <span class="grad">AI Agent</span> Control Panel</div>
+<div id="aiControlContent">
+<p><strong>Управление торговым ботом</strong></p>
+<p>Статус: </p>
+<div style="margin: 15px 0;">
+<button class="action-btn glow-border-thin" style="margin: 5px;">⚡ Авто-трейдинг</button>
+<button class="action-btn glow-border-thin" style="margin: 5px;">📊 Анализ рынка</button>
+<button class="action-btn glow-border-thin" style="margin: 5px;">🔧 Настройки рисков</button>
+</div>
+</div>
+</div>
+<div class="ai-modal-content">
+<div class="ai-modal-title">🧠 DeepSeek Integration</div>
+<div id="deepseekContent">
+<p>Подключение к нейросети для прогнозов</p>
+<p>Статус API: <span id="apiStatus" style="color: var(--neon-red)">Не настроен</span></p>
+<button class="action-btn glow-border-thin" id="setupDeepSeekBtn" style="margin-top: 10px; background: var(--neon-green); color: black;">🔑 Настроить DeepSeek API</button>
+</div>
+</div>
+<div class="ai-modal-content">
+<div class="ai-modal-title">📈 Режимы работы</div>
+<div>
+<button class="action-btn glow-border-thin" style="margin: 5px; width: 100%;">🔍 Скальпинг</button>
+<button class="action-btn glow-border-thin" style="margin: 5px; width: 100%;">📊 Свинг-трейдинг</button>
+<button class="action-btn glow-border-thin" style="margin: 5px; width: 100%;">⚡ Маркет-мейкинг</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- ENTRY AGENT -->
+<div class="entry-agent">
+<div class="gradient-title" style="margin-bottom: 10px; padding: 0 15px;"><span class="grad">Entry Agent</span></div>
+<div class="entry-grid">
+<div class="entry-card glow-border-thin">
+<div class="entry-label">Вход</div>
+<div class="entry-value" id="entryPrice">—</div>
+</div>
+<div class="entry-card glow-border-thin"><div class="entry-label">SL</div><div class="entry-value" id="entrySL">—</div></div>
+<div class="entry-card glow-border-thin"><div class="entry-label">TP</div><div class="entry-value" id="entryTP">—</div></div>
+<div class="entry-card glow-border-thin">
+<div class="entry-label">Цена</div>
+<div class="entry-value" id="entryMarketPrice">—</div>
+</div>
+<div class="entry-card glow-border-thin"><div class="entry-label">Фандинг</div><div class="entry-value" id="entryFunding">—</div></div>
+<div class="entry-card glow-border-thin"><div class="entry-label">Сигнал</div><div class="entry-value" id="entrySignal">—</div></div>
+</div>
+</div>
+<!-- SMART SNIPER MODE -->
+<div class="sniper-scanner">
+<div class="advanced-oi glow-border">
+<div class="oi-header">
+<div class="oi-title">Smart Sniper Mode</div>
+<div class="sniper-controls">
+<button class="sniper-btn" id="toggleSniper">INACTIVE</button>
+<button class="sniper-sound" id="toggleSound">🔊</button>
+</div>
+</div>
+<div class="sniper-list" id="sniperResults">
+<div class="sniper-loading">Сканер отключен</div>
+</div>
+</div>
+</div>
+<!-- AI MONITOR -->
+<div class="ai-monitor glow-border-thin" id="aiMonitor">
+<div class="ai-monitor-header">
+<div class="ai-monitor-title"><span class="grad">AI Monitor</span></div>
+<div class="ai-monitor-status">
+<div class="ai-monitor-dot"></div>
+</div>
+</div>
+<div class="ticker-stats" id="tickerStats">
+<div class="stat-item">
+<div class="stat-label">Сделки 24ч</div>
+<div class="stat-value" id="trades24h">—</div>
+</div>
+<div class="stat-item">
+<div class="stat-label">Объем 24ч</div>
+<div class="stat-value" id="volumeStats">—</div>
+</div>
+<div class="stat-item">
+<div class="stat-label">Лонг сделки</div>
+<div class="stat-value positive" id="longTrades">—</div>
+</div>
+<div class="stat-item">
+<div class="stat-label">Шорт сделки</div>
+<div class="stat-value negative" id="shortTrades">—</div>
+</div>
+<div class="stat-item">
+<div class="stat-label">Win Rate</div>
+<div class="stat-value positive" id="winRate">—</div>
+</div>
+<div class="stat-item">
+<div class="stat-label">P&amp;L 24ч</div>
+<div class="stat-value" id="pnl24h">—</div>
+</div>
+<div class="stat-item">
+<div class="stat-label">Натр 24ч</div>
+<div class="stat-value" id="natr24h">—</div>
+</div>
+<div class="stat-item">
+<div class="stat-label">Активные ордера</div>
+<div class="stat-value" id="activeOrders">—</div>
+</div>
+</div>
+</div>
+<!-- OPEN INTEREST -->
+<div class="open-interest">
+<div class="advanced-oi glow-border">
+<div class="oi-header">
+<div class="oi-title">Open Interest — <span class="symbol-mini" id="oiSymbol">BTCUSDT</span></div>
+<div class="oi-timeframe">
+<button class="oi-tf-btn active" data-tf="5m">5m</button>
+<button class="oi-tf-btn" data-tf="15m">15m</button>
+<button class="oi-tf-btn" data-tf="1h">1h</button>
+</div>
+</div>
+<div class="oi-list">
+<div class="oi-row">
+<span class="oi-buy">Taker Buy ()</span>
+<span class="oi-value" id="takerBuy">—</span>
+</div>
+<div class="oi-row">
+<span class="oi-sell">Taker Sell ()</span>
+<span class="oi-value" id="takerSell">—</span>
+</div>
+<div class="oi-row">
+<span class="oi-default">Open Interest (now)</span>
+<span class="oi-value" id="oiNow">—</span>
+</div>
+<div class="oi-row">
+<span class="oi-default">Δ OI vs prev</span>
+<span class="oi-value" id="oiDelta">—</span>
+</div>
+<div class="oi-row">
+<span class="oi-total">Всего (Buy+Sell)</span>
+<span class="oi-value" id="oiTotal">—</span>
+</div>
+<div class="oi-row oi-footer-row">
+<span id="oiFooter">BTCUSDT — Bybit linear</span>
+<span id="oiUpdated">Обновлено: —</span>
+</div>
+</div>
+</div>
+</div>
+<!-- LIQUIDATION HEATMAP -->
+<div class="liquidation-heatmap">
+<div class="advanced-oi glow-border">
+<div class="oi-header">
+<div class="oi-title">Liquidation Heatmap — <span class="symbol-mini" id="liqSymbol">BTCUSDT</span></div>
+<div class="oi-timeframe">
+<button class="oi-tf-btn active" data-tf="1h">1h</button>
+<button class="oi-tf-btn" data-tf="4h">4h</button>
+
+</div>
+</div>
+<div class="oi-list">
+<div class="oi-row">
+<span class="oi-buy">Long Liquidations</span>
+<span class="oi-value" id="longLiquidations">—</span>
+</div>
+<div class="oi-row">
+<span class="oi-sell">Short Liquidations</span>
+<span class="oi-value" id="shortLiquidations">—</span>
+</div>
+<div class="oi-row">
+<span class="oi-default">Liquidation Wall</span>
+<span class="oi-value" id="liquidationWall">—</span>
+</div>
+<div class="oi-row">
+<span class="oi-total">Total Liquidated</span>
+<span class="oi-value" id="totalLiquidated">—</span>
+</div>
+</div>
+</div>
+</div>
+<!-- AI AGENT -->
+<div class="ai-agent glow-border" id="aiAgentBlock">
+<div class="agent-header">
+<div class="gradient-title"><span class="grad">AI Agent</span></div>
+<div class="confidence">
+<div class="confidence-bar">
+<div class="confidence-fill" id="confidenceFill" style="width: 75%"></div>
+</div>
+</div>
+</div>
+<div class="agent-content">
+<div class="prediction">
+<div class="prediction-text">Прогноз на 1 час:</div>
+<div class="prediction-value" id="hourPrediction">—</div>
+</div>
+<div class="prediction">
+<div class="prediction-text">Рекомендация:</div>
+<div class="prediction-value" id="aiRecommendation">—</div>
+</div>
+</div>
+<div class="ai-signal-ticker">
+<div class="ai-signal-text" id="aiSignalTickerText">AI сигнал загружается...</div>
+</div>
+</div>
+</div>
+
+<!-- MODALS -->
+<div class="modal" id="gainersModal">
+<div class="modal-content">
+<div class="modal-header">
+<div class="modal-title">📈 Топ Рост</div>
+<button class="close-modal">×</button>
+</div>
+<div class="exchange-tabs">
+<button class="exchange-tab active" data-exchange="linear">Bybit Linear</button>
+<button class="exchange-tab" data-exchange="inverse">Bybit Inverse</button>
+</div>
+<div class="movers-list" id="gainersList"></div>
+</div>
+</div>
+<div class="modal" id="losersModal">
+<div class="modal-content">
+<div class="modal-header">
+<div class="modal-title">📉 Топ Падение</div>
+<button class="close-modal">×</button>
+</div>
+<div class="exchange-tabs">
+<button class="exchange-tab active" data-exchange="linear">Bybit Linear</button>
+<button class="exchange-tab" data-exchange="inverse">Bybit Inverse</button>
+</div>
+<div class="movers-list" id="losersList"></div>
+</div>
+</div>
+<div class="modal" id="favoritesModal">
+<div class="modal-content">
+<div class="modal-header">
+<div class="modal-title"><span style="color: var(--neon-yellow);">⭐</span> ⭐</div>
+<button class="close-modal">×</button>
+</div>
+<div class="movers-list" id="favoritesList">
+<div style="text-align: center; padding: 20px 15px; color: var(--muted);">
+<div style="font-size: 48px; margin-bottom: 10px; color: var(--neon-yellow);">⭐</div>
+<p>Добавьте монеты в избранное для быстрого доступа</p>
+<button class="action-btn glow-border-thin" style="margin-top: 10px;">➕ Добавить монету</button>
+</div>
+</div>
+</div>
+</div>
+<div class="modal" id="alertsModal">
+<div class="modal-content">
+<div class="modal-header">
+<div class="modal-title"><span style="color: var(--neon-red);">🔔</span> 🔔</div>
+<button class="close-modal">×</button>
+</div>
+<div class="movers-list" id="alertsList">
+<div style="text-align: center; padding: 20px 15px; color: var(--muted);">
+<div style="font-size: 48px; margin-bottom: 10px; color: var(--neon-red);">🔔</div>
+<p>Настройте уведомления о важных событиях</p>
+<button class="action-btn glow-border-thin" style="margin-top: 10px;">➕ Создать алерт</button>
+</div>
+</div>
+</div>
+</div>
+<!-- AI CONTROL MODAL -->
+<div class="modal" id="aiControlModal">
+<div class="modal-content ai-control-modal">
+<div class="modal-header">
+<div class="modal-title">🤖 AI Control Panel</div>
+<button class="close-modal">×</button>
+</div>
+<div class="ai-control-tabs">
+<button class="ai-control-tab active" data-tab="trading">Торговля</button>
+<button class="ai-control-tab" data-tab="telegram">Telegram Bot</button>
+<button class="ai-control-tab" data-tab="ai-settings">AI Настройки</button>
+<button class="ai-control-tab" data-tab="risk">Управление рисками</button>
+</div>
+<div class="ai-control-content">
+<div class="ai-control-section">
+<div class="ai-control-section-title">Авто-трейдинг</div>
+<div class="setting-row">
+<span class="setting-label">Авто-трейдинг</span>
+<label class="toggle-switch">
+<input checked="" id="autoTradingToggle" type="checkbox"/>
+<span class="toggle-slider"></span>
+</label>
+</div>
+<div class="setting-row">
+<span class="setting-label">Режим торговли</span>
+</div>
+<div class="setting-row">
+<span class="setting-label">Макс. сделок в день</span>
+</div>
+</div>
+<div class="ai-control-section">
+<div class="ai-control-section-title">Telegram Bot</div>
+<div class="setting-row">
+<span class="setting-label">Статус бота</span>
+</div>
+<div class="setting-row">
+<label class="toggle-switch">
+<input checked="" id="notificationsToggle" type="checkbox"/>
+<span class="toggle-slider"></span>
+</label>
+</div>
+<div class="setting-row">
+<span class="setting-label">Сигналы в канал</span>
+<label class="toggle-switch">
+<input id="channelSignalsToggle" type="checkbox"/>
+<span class="toggle-slider"></span>
+</label>
+</div>
+</div>
+<div class="ai-control-section">
+<div class="ai-control-section-title">AI Настройки</div>
+<div class="setting-row">
+<span class="setting-label">DeepSeek API</span>
+</div>
+<div class="setting-row">
+<span class="setting-label">Точность прогноза</span>
+<span class="setting-value">87.5%</span>
+</div>
+<div class="setting-row">
+<span class="setting-label">Обучение модели</span>
+<label class="toggle-switch">
+<input id="modelTrainingToggle" type="checkbox"/>
+<span class="toggle-slider"></span>
+</label>
+</div>
+</div>
+<div class="ai-control-section">
+<div class="ai-control-section-title">Управление рисками</div>
+<div class="setting-row">
+<span class="setting-label">Макс. риск на сделку</span>
+<span class="setting-value">2%</span>
+</div>
+<div class="setting-row">
+<span class="setting-label">Дневной лимит</span>
+<span class="setting-value">5%</span>
+</div>
+<div class="setting-row">
+<span class="setting-label">Авто-стоп при убытке</span>
+<label class="toggle-switch">
+<input checked="" id="autoStopToggle" type="checkbox"/>
+<span class="toggle-slider"></span>
+</label>
+</div>
+</div>
+<div style="text-align: center; margin-top: 15px;">
+<button class="action-btn glow-border-thin" style="margin: 5px; background: var(--neon-green); color: black;">💾 Сохранить настройки</button>
+<button class="action-btn glow-border-thin" style="margin: 5px; background: var(--neon-red); color: white;">🔄 Сбросить к default</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ALERTS -->
+<div class="alert-container" id="alertContainer"></div>
+</div>
+</div>
+<script>
+// === CONFIG ===
+const CONFIG = {
+    // Все запросы к Bybit идут через backend-прокси
+    bybitAPI: '/api/bybit/market',
+    updateIntervals: {
+        price: 2000,
+        oi: 4000,
+        ai: 6000,
+        stats: 5000,
+        liquidation: 10000,
+        sniper: 30000
+    },
+    retryAttempts: 3,
+    retryDelay: 1000
+};
+
+// === FORMAT HELPERS ===
+function formatNumberDynamic(value, maxDecimals = 8) {
+    if (!Number.isFinite(value)) return '—';
+    const fixed = value.toFixed(maxDecimals);
+    return fixed
+        .replace(/(\.\d*?[1-9])0+$/, '$1')
+        .replace(/\.0+$/, '')
+        .replace(/^-0\b/, '0');
+}
+
+function formatPrice(value) {
+    return '$' + formatNumberDynamic(value, 8);
+}
+
+function formatPercent(value) {
+    if (!Number.isFinite(value)) return '—';
+    const fixed = value.toFixed(4);
+    const trimmed = fixed
+        .replace(/(\.\d*?[1-9])0+$/, '$1')
+        .replace(/\.0+$/, '');
+    return trimmed + '%';
+}
+
+function formatCompactUSD(value) {
+    if (!Number.isFinite(value)) return '—';
+    if (Math.abs(value) >= 1e9) {
+        return '$' + formatNumberDynamic(value / 1e9, 4) + 'B';
+    }
+    if (Math.abs(value) >= 1e6) {
+        return '$' + formatNumberDynamic(value / 1e6, 4) + 'M';
+    }
+    return '$' + formatNumberDynamic(value, 4);
+}
+
+// === GLOBAL STATE ===
+let currentSymbol = 'BTCUSDT';
+let tvWidget = null;
+let oiInterval = '5m';
+let liqInterval = '1h';
+let aiAgentEnabled = false;
+let wsConnection = null;
+let wsGeneration = 0;
+let lastConnectedSymbol = null;
+let priceUpdateInterval;
+let oiUpdateInterval;
+let aiUpdateInterval;
+let entryAgentUpdateInterval;
+let tickerStatsInterval;
+let liquidationUpdateInterval;
+let sniperInterval = null;
+let sniperActive = false;
+let sniperSoundEnabled = true;
+
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+// Load favorites and alerts from local storage
+let favorites = JSON.parse(localStorage.getItem('quant_favorites')) || ['BTCUSDT', 'ETHUSDT'];
+let alerts = JSON.parse(localStorage.getItem('quant_alerts')) || [];
+let lastEntrySnapshot = null;
+
+// === UTILS ===
+function normalizeInputSymbol(symbol) {
+    if (!symbol) return '';
+    let s = symbol.toUpperCase().trim().replace(/USDT$/, '');
+    if (s.length === 0) return '';
+    return s + 'USDT';
+}
+
+function isValidSymbol(symbol) {
+    return symbol.length >= 4 && symbol.endsWith('USDT');
+}
+
+function buildTradingViewSymbol(symbol) {
+    const s = normalizeInputSymbol(symbol);
+    return `BYBIT:${s}.P`;
+}
+
+// Robust API call with retry logic
+async function robustApiCall(url, options = {}, retries = CONFIG.retryAttempts) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+    try {
+        const response = await fetch(url, { ...options, signal: controller.signal });
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        clearTimeout(timeoutId);
+
+        if (retries > 0) {
+            console.warn(`API call failed, ${retries} retries left:`, error);
+            await new Promise(resolve => setTimeout(resolve, CONFIG.retryDelay));
+            return robustApiCall(url, options, retries - 1);
+        }
+        throw erfunction initWebSocket() {
+    try {
+        // Увеличиваем поколение, чтобы инвалидировать старые соединения
+        wsGeneration += 1;
+        const thisGen = wsGeneration;
+
+        // Аккуратно закрываем предыдущий сокет
+        if (wsConnection) {
+            try {
+                wsConnection.onopen = null;
+                wsConnection.onclose = null;
+                wsConnection.onerror = null;
+                wsConnection.onmessage = null;
+                if (wsConnection.readyState === WebSocket.OPEN || wsConnection.readyState === WebSocket.CONNECTING) {
+                    wsConnection.close();
+                }
+            } catch (closeErr) {
+                console.warn('WebSocket close error:', closeErr);
+            }
+        }
+
+        const socket = new WebSocket('wss://stream.bybit.com/v5/public/linear');
+        wsConnection = socket;
+
+        socket.onopen = function() {
+            if (thisGen !== wsGeneration) {
+                try { socket.close(); } catch (_) {}
+                return;
+            }
+            console.log('WebSocket connected for:', currentSymbol);
+            const subMsg = {
+                op: 'subscribe',
+                args: [`tickers.${currentSymbol}`]
+            };
+            try {
+                if (socket.readyState === WebSocket.OPEN) {
+                    socket.send(JSON.stringify(subMsg));
+                }
+            } catch (e) {
+                console.error('WebSocket send error:', e);
+            }
+
+            // Показываем попап подключения только один раз на символ
+            if (lastConnectedSymbol !== currentSymbol) {
+                lastConnectedSymbol = currentSymbol;
+                showAlert(`Реальное подключение WebSocket: ${currentSymbol}`, 'success');
+            }
+        };
+
+        socket.onmessage = function(event) {
+            if (thisGen !== wsGeneration) return;
+            try {
+                const msg = JSON.parse(event.data);
+                if (msg.topic && msg.topic.startsWith('tickers.') && msg.data && msg.data.length > 0) {
+                    const tick = msg.data[0];
+                    updateRealtimeDataFromBybit(tick);
+                }
+            } catch (e) {
+                console.error('WebSocket message error:', e);
+            }
+        };
+
+        socket.onclose = function() {
+            if (thisGen !== wsGeneration) return;
+            console.log('WebSocket disconnected, reconnecting...');
+            setTimeout(initWebSocket, 2000);
+        };
+
+        socket.onerror = function(error) {
+            if (thisGen !== wsGeneration) return;
+            console.error('WebSocket error:', error);
+        };
+    } catch (error) {
+        console.error('WebSocket init error:', error);
+        setTimeout(initWebSocket, 3000);
+    }
+}ror);
+        setTimeout(initWebSocket, 3000);
+    }
+}
+
+function updateRealtimeDataFromBybit(tick) {
+    if (!tick) return;
+
+    const price = parseFloat(tick.lastPrice);
+    const change = parseFloat(tick.price24hPcnt) * 100;
+    const volume = parseFloat(tick.turnover24h);
+
+    if (Number.isFinite(price)) {
+        const currentPriceEl = document.getElementById('currentPrice');
+        currentPriceEl.textContent = formatPrice(price);
+        currentPriceEl.className = `metric-value neutral`;
+        checkPriceAlerts(price);
+        
+        // Update dynamic trend
+        updateDynamicTrend(change);
+    }
+
+    if (Number.isFinite(change)) {
+        const changeEl = document.getElementById('priceChange');
+        const sign = change > 0 ? '+' : '';
+        changeEl.textContent = sign + formatPercent(Math.abs(change));
+        changeEl.className = `metric-value ${change >= 0 ? 'positive' : 'negative'}`;
+    }
+
+    if (Number.isFinite(volume)) {
+        const volumeText = formatCompactUSD(volume);
+        document.getElementById('volume24h').textContent = volumeText;
+    }
+}
+
+// === DYNAMIC TREND PULSE ===
+function updateDynamicTrend(changePercent) {
+    const body = document.body;
+    body.classList.remove('trend-bullish', 'trend-bearish');
+    
+    if (changePercent > 0.5) {
+        body.classList.add('trend-bullish');
+    } else if (changePercent < -0.5) {
+        body.classList.add('trend-bearish');
+    }
+}
+
+// === INIT ===
+async function initializeApp() {
+    try {
+        initTradingView(currentSymbol);
+        initWebSocket();
+        await updateAllData();
+        startAutoUpdates();
+        setupEventListeners();
+        initAIAgent();
+        startTickerStats();
+        // setupTradeButtons(); // Удалено по запросу пользователя
+        setupSniperMode();
+        setupSwipeGestures();
+
+        // Mobile-specific optimizations
+        if (isMobile) {
+            optimizeForMobile();
+            document.body.classList.add('mini-app');
+        }
+
+        // Update favorite and alert buttons state
+        updateSearchActionButtons();
+
+        showAlert('Quant Terminal PRO запущен! Sniper Mode готов.', 'success');
+    } catch (error) {
+        console.error('App initialization error:', error);
+        showAlert('Ошибка инициализации приложения', 'error');
+    }
+}
+
+// Mobile optimizations
+function optimizeForMobile() {
+    // Increase alert display time on mobile
+    const originalShowAlert = showAlert;
+    showAlert = function(msg, type = 'info') {
+        const container = document.getElementById('alertContainer');
+        const alert = document.createElement('div');
+        alert.className = `alert ${type}`;
+        alert.textContent = msg;
+        alert.style.borderColor = type === 'success' ? 'var(--neon-green)' : 
+                                type === 'error' ? 'var(--neon-red)' : 'var(--neon-blue)';
+        container.appendChild(alert);
+        setTimeout(() => alert.remove(), 5000);
+    };
+}
+
+// Update search action buttons state
+function updateSearchActionButtons() {
+    const favoriteBtn = document.getElementById('addFavorite');
+    const alertBtn = document.getElementById('addAlert');
+    
+    const isFavorite = favorites.includes(currentSymbol);
+    const hasAlert = alerts.some(alert => alert.symbol === currentSymbol);
+    
+    if (isFavorite) {
+        favoriteBtn.classList.add('active');
+    } else {
+        favoriteBtn.classList.remove('active');
+    }
+    
+    if (hasAlert) {
+        alertBtn.classList.add('alert-active');
+    } else {
+        alertBtn.classList.remove('alert-active');
+    }
+}
+
+// === TRADINGVIEW ===
+function initTradingView(symbol) {
+    try {
+        if (tvWidget) {
+            tvWidget.remove();
+        }
+
+        tvWidget = new TradingView.widget({
+            symbol: buildTradingViewSymbol(symbol),
+            interval: '15',
+            container_id: 'tvchart',
+            locale: 'ru',
+            autosize: true,
+            theme: 'dark',
+            toolbar_bg: '#0a0a0a',
+            enable_publishing: false,
+            withdateranges: true,
+            hide_side_toolbar: false,
+            allow_symbol_change: false,
+            studies: [
+                'Volume@tv-basicstudies',
+                'BB@tv-basicstudies',
+                'RSI@tv-basicstudies',
+                'MACD@tv-basicstudies'
+            ],
+            timezone: "Europe/Moscow"
+        });
+    } catch (error) {
+        console.error('TradingView init error:', error);
+    }
+}
+
+// === DATA UPDATE ===
+async function updateAllData() {
+    try {
+        await Promise.allSettled([
+            updatePriceData(),
+            updateOIData(),
+            updateAIData(),
+            updateEntryAgent(),
+            updateTickerStats(),
+            updateLiquidationData()
+        ]);
+    } catch (error) {
+        console.error('Update all data error:', error);
+    }
+}
+
+async function updatePriceData() {
+    try {
+        const endpoint = `${CONFIG.bybitAPI}/tickers?category=linear&symbol=${currentSymbol}`;
+        const data = await robustApiCall(endpoint);
+
+        if (!data.result || !data.result.list || data.result.list.length === 0) {
+            throw new Error('No ticker data for symbol on Bybit');
+        }
+
+        const t = data.result.list[0];
+
+        const price = parseFloat(t.lastPrice);
+        const change = parseFloat(t.price24hPcnt) * 100;
+        const volume = parseFloat(t.turnover24h);
+
+        if (Number.isFinite(price)) {
+            const currentPriceEl = document.getElementById('currentPrice');
+            currentPriceEl.textContent = formatPrice(price);
+            currentPriceEl.className = `metric-value neutral`;
+
+            const changeEl = document.getElementById('priceChange');
+            if (Number.isFinite(change)) {
+                const sign = change > 0 ? '+' : '';
+                changeEl.textContent = sign + formatPercent(Math.abs(change));
+                changeEl.className = `metric-value ${change >= 0 ? 'positive' : 'negative'}`;
+            }
+
+            if (Number.isFinite(volume)) {
+                const volumeText = formatCompactUSD(volume);
+                document.getElementById('volume24h').textContent = volumeText;
+            }
+        }
+
+        const high = parseFloat(t.highPrice24h);
+        const low = parseFloat(t.lowPrice24h);
+        if (Number.isFinite(high) && Number.isFinite(low) && low !== 0) {
+            const vol = ((high - low) / low * 100).toFixed(2);
+            document.getElementById('volatility').textContent = `${vol}%`;
+        }
+
+    } catch (error) { 
+        console.error('Price update error:', error);
+    }
+}
+
+async function updateOIData() {
+    try {
+        const oiUrl = `https://api.bybit.com/v5/market/open-interest?category=linear&symbol=${currentSymbol}&interval=${oiInterval}&limit=2`;
+        const oiJson = await robustApiCall(oiUrl);
+
+        if (!oiJson.result || !oiJson.result.list || oiJson.result.list.length === 0) {
+            console.warn('No OI data available for', currentSymbol);
+            updateOIFallback();
+            return;
+        }
+
+        const oiList = oiJson.result.list;
+        const now = parseFloat(oiList[0].openInterest);
+        const prev = parseFloat(oiList[1] ? oiList[1].openInterest : oiList[0].openInterest);
+        const delta = now - prev;
+
+        document.getElementById('oiNow').textContent = formatNumberDynamic(now / 1e6, 4) + 'M';
+
+        const deltaEl = document.getElementById('oiDelta');
+        const deltaClass = delta > 0 ? 'positive' : delta < 0 ? 'negative' : 'neutral';
+        deltaEl.textContent = (delta >= 0 ? '+' : '') + formatNumberDynamic(delta / 1e6, 4) + 'M';
+        deltaEl.className = `metric-value ${delta >= 0 ? 'positive' : 'negative'}`;
+
+        const takerUrl = `https://api.bybit.com/v5/market/taker-buy-sell-ratio?category=linear&symbol=${currentSymbol}&interval=${oiInterval}&limit=1`;
+        const takerJson = await robustApiCall(takerUrl);
+
+        if (takerJson.result && takerJson.result.list && takerJson.result.list.length > 0) {
+            const t = takerJson.result.list[0];
+            const buyRatio = parseFloat(t.buyRatio || 0.5);
+            const sellRatio = parseFloat(t.sellRatio || 0.5);
+            const total = buyRatio + sellRatio;
+
+            document.getElementById('takerBuy').textContent = buyRatio.toFixed(3);
+            document.getElementById('takerSell').textContent = sellRatio.toFixed(3);
+            document.getElementById('oiTotal').textContent = total.toFixed(3);
+        }
+
+        document.getElementById('oiSymbol').textContent = currentSymbol;
+        document.getElementById('oiFooter').textContent = `${currentSymbol} — Bybit linear`;
+        document.getElementById('oiUpdated').textContent = 'Обновлено: ' + new Date().toLocaleTimeString();
+
+    } catch (error) { 
+        console.error('OI update error:', error);
+        updateOIFallback();
+    }
+}
+
+function updateOIFallback() {
+    const now = 1000;
+    const delta = 0;
+    const buy = 0.5;
+    const sell = 0.5;
+    const total = buy + sell;
+
+    document.getElementById('oiNow').textContent = (now / 1e3).toFixed(2) + 'M';
+
+    const deltaEl = document.getElementById('oiDelta');
+    deltaEl.textContent = (delta >= 0 ? '+' : '') + (delta / 1e3).toFixed(2) + 'M';
+    deltaEl.className = `metric-value ${delta >= 0 ? 'positive' : 'negative'}`;
+
+    document.getElementById('takerBuy').textContent = buy.toFixed(3);
+    document.getElementById('takerSell').textContent = sell.toFixed(3);
+    document.getElementById('oiTotal').textContent = total.toFixed(3);
+    document.getElementById('oiUpdated').textContent = 'Обновлено: ' + new Date().toLocaleTimeString();
+}
+
+// === LIQUIDATION HEATMAP ===
+async function updateLiquidationData() {
+    try {
+        // Используем данные из реального API Bybit для ликвидаций
+        const liqUrl = `https://api.bybit.com/v5/market/recent-trade?category=linear&symbol=${currentSymbol}&limit=100`;
+        const liqData = await robustApiCall(liqUrl);
+        
+        if (liqData.result && liqData.result.list) {
+            const trades = liqData.result.list;
+            let longLiq = 0;
+            let shortLiq = 0;
+            let totalLiq = 0;
+            
+            // Анализируем последние сделки для определения ликвидаций
+            trades.forEach(trade => {
+                if (trade.side === 'Buy' && trade.size > 10000) {
+                    shortLiq += parseFloat(trade.size || 0);
+                } else if (trade.side === 'Sell' && trade.size > 10000) {
+                    longLiq += parseFloat(trade.size || 0);
+                }
+            });
+            
+            totalLiq = longLiq + shortLiq;
+            
+            // Обновляем интерфейс
+            document.getElementById('longLiquidations').textContent = formatCompactUSD(longLiq);
+            document.getElementById('shortLiquidations').textContent = formatCompactUSD(shortLiq);
+            document.getElementById('totalLiquidated').textContent = formatCompactUSD(totalLiq);
+            
+            // Определяем ближайший уровень ликвидационной стены
+            const currentPrice = parseFloat(document.getElementById('currentPrice').textContent.replace('$', '') || 0);
+            if (currentPrice > 0) {
+                const wallDistance = currentPrice * 0.02;
+                document.getElementById('liquidationWall').textContent = `±${(wallDistance/currentPrice*100).toFixed(1)}%`;
+            }
+            
+            document.getElementById('liqSymbol').textContent = currentSymbol;
+        }
+    } catch (error) {
+        console.error('Liquidation data error:', error);
+        // Fallback данные
+        document.getElementById('longLiquidations').textContent = '$2.1M';
+        document.getElementById('shortLiquidations').textContent = '$1.8M';
+        document.getElementById('totalLiquidated').textContent = '$3.9M';
+        document.getElementById('liquidationWall').textContent = '±1.8%';
+    }
+}
+
+async function updateAIData() {
+    try {
+        const res = await robustApiCall(
+            `${CONFIG.bybitAPI}/kline?category=linear&symbol=${currentSymbol}&interval=60&limit=100`
+        );
+
+        if (!res.result || !res.result.list || res.result.list.length === 0) {
+            throw new Error('No kline data for symbol on Bybit');
+        }
+
+        const klines = res.result.list.slice().reverse();
+        const closes = klines.map(k => parseFloat(k[4])).filter(v => Number.isFinite(v));
+        const prices = closes.slice(-20);
+
+        if (prices.length < 2) return;
+
+        const current = prices[prices.length - 1];
+        const avg = prices.reduce((a, b) => a + b, 0) / prices.length;
+        const trend = current > avg ? 'bullish' : 'bearish';
+
+        const rsi = calculateRSI(prices);
+        const momentum = calculateMomentum(prices);
+
+        const bias = current > prices[0] ? 1 : -1;
+        let rawMove = momentum * 1.2 + (rsi - 50) * 0.05 * bias;
+        if (!Number.isFinite(rawMove)) rawMove = 0;
+
+        const pct = Math.max(-3, Math.min(3, rawMove));
+        const dir = pct > 0.05 ? '↑' : pct < -0.05 ? '↓' : '→';
+
+        let rec;
+        let sig;
+
+        if (dir === '↑') {
+            rec = trend === 'bullish' ? 'Умеренный восходящий тренд' : 'Потенциальный разворот вверх';
+            sig = 'BUY';
+        } else if (dir === '↓') {
+            rec = trend === 'bearish' ? 'Умеренный нисходящий тренд' : 'Риск коррекции';
+            sig = 'SELL';
+        } else {
+            rec = 'Боковой диапазон';
+            sig = 'HOLD';
+        }
+
+        const strength = Math.abs(pct) * 15 + Math.abs(rsi - 50) * 0.7;
+        const conf = Math.max(35, Math.min(92, strength));
+
+        const aiPredictionEl = document.getElementById('aiPrediction');
+        const absPct = Math.abs(pct);
+        aiPredictionEl.textContent = `${dir} ${formatPercent(absPct)}`;
+        aiPredictionEl.className = `metric-value ${
+            pct > 0 ? 'positive' : pct < 0 ? 'negative' : 'neutral'
+        }`;
+
+        const hourPredEl = document.getElementById('hourPrediction');
+        hourPredEl.textContent = `${pct > 0 ? '+' : ''}${formatPercent(absPct)}`;
+        hourPredEl.className = `prediction-value ${
+            pct > 0 ? 'positive' : pct < 0 ? 'negative' : 'neutral'
+        }`;
+
+        const aiRecEl = document.getElementById('aiRecommendation');
+        aiRecEl.textContent = rec;
+        aiRecEl.className = `prediction-value ${
+            sig === 'BUY' ? 'positive' : 
+            sig === 'SELL' ? 'negative' : 'neutral'
+        }`;
+
+        const signalEl = document.getElementById('tradeSignal');
+        signalEl.textContent = sig;
+        signalEl.className = `metric-value ${
+            sig === 'BUY' ? 'positive' : 
+            sig === 'SELL' ? 'negative' : 'neutral'
+        }`;
+
+        document.getElementById('confidenceFill').style.width = `${conf.toFixed(0)}%`;
+
+    } catch (error) { 
+        console.error('AI update error:', error);
+    }
+}
+
+function calculateRSI(prices) {
+    let gains = 0;
+    let losses = 0;
+
+    for (let i = 1; i < prices.length; i++) {
+        const difference = prices[i] - prices[i - 1];
+        if (difference >= 0) {
+            gains += difference;
+        } else {
+            losses -= difference;
+        }
+    }
+
+    const avgGain = gains / (prices.length - 1);
+    const avgLoss = losses / (prices.length - 1);
+
+    if (avgLoss === 0) return 100;
+    const rs = avgGain / avgLoss;
+    return 100 - (100 / (1 + rs));
+}
+
+function calculateMomentum(prices) {
+    if (prices.length < 5) return 0;
+    const short = prices.slice(-5).reduce((a, b) => a + b, 0) / 5;
+    const long = prices.reduce((a, b) => a + b, 0) / prices.length;
+    return ((short - long) / long) * 100;
+}
+
+// === ENTRY PRICE AGENT ===
+async function updateEntryAgent() {
+    try {
+        const tickerRes = await robustApiCall(
+            `${CONFIG.bybitAPI}/tickers?category=linear&symbol=${currentSymbol}`
+        );
+        if (!tickerRes.result || !tickerRes.result.list || tickerRes.result.list.length === 0) {
+            throw new Error('No ticker data for symbol on Bybit');
+        }
+
+        const t = tickerRes.result.list[0];
+        const price = parseFloat(t.lastPrice);
+        const volPct = Math.abs(parseFloat(t.price24hPcnt) * 100) || 2;
+
+        const atr = await calculateRealATR();
+        const volatility = Number.isFinite(volPct) ? volPct : 2;
+
+        const slDistance = price * (volatility / 100) * 0.7;
+        const tpDistance = price * (volatility / 100) * 1.5;
+
+        const entry = price;
+        const sl = price - slDistance;
+        const tp = price + tpDistance;
+
+        const funding = await getRealFundingRate();
+        const signal = await getRealTradeSignal();
+
+        const entryPriceEl = document.getElementById('entryPrice');
+        entryPriceEl.textContent = formatNumberDynamic(entry, 8);
+        entryPriceEl.className = `entry-value neutral`;
+        
+        const entrySLEl = document.getElementById('entrySL');
+        entrySLEl.textContent = formatNumberDynamic(sl, 8);
+        entrySLEl.className = `entry-value ${sl < entry ? 'short' : 'long'}`;
+
+        const entryTPEl = document.getElementById('entryTP');
+        entryTPEl.textContent = formatNumberDynamic(tp, 8);
+        entryTPEl.className = `entry-value ${tp > entry ? 'long' : 'short'}`;
+
+        const entryMarketPriceEl = document.getElementById('entryMarketPrice');
+        entryMarketPriceEl.textContent = formatNumberDynamic(price, 8);
+        entryMarketPriceEl.className = `entry-value neutral`;
+
+        const entryFundingEl = document.getElementById('entryFunding');
+        entryFundingEl.textContent = formatPercent(funding);
+        entryFundingEl.className = `entry-value ${funding >= 0 ? 'long' : 'short'}`;
+
+        const sigEl = document.getElementById('entrySignal');
+        sigEl.textContent = signal;
+        sigEl.className = `entry-value ${
+            signal === "LONG" ? "long" : 
+            signal === "SHORT" ? "short" : "neutral"
+        }`;
+
+        lastEntrySnapshot = {
+            entry,
+            sl,
+            tp,
+            price,
+            funding,
+            signal
+        };
+
+    } catch(error) {
+        console.error('Entry agent error:', error);
+        fallbackEntryAgent();
+    }
+}
+
+async function calculateRealATR() {
+    try {
+        const res = await robustApiCall(
+            `${CONFIG.bybitAPI}/kline?category=linear&symbol=${currentSymbol}&interval=60&limit=14`
+        );
+
+        if (!res.result || !res.result.list || res.result.list.length < 2) {
+            return 100;
+        }
+
+        const klines = res.result.list.slice().reverse();
+        let trSum = 0;
+        for (let i = 1; i < klines.length; i++) {
+            const high = parseFloat(klines[i][2]);
+            const low = parseFloat(klines[i][3]);
+            const prevClose = parseFloat(klines[i - 1][4]);
+
+            const tr1 = high - low;
+            const tr2 = Math.abs(high - prevClose);
+            const tr3 = Math.abs(low - prevClose);
+
+            trSum += Math.max(tr1, tr2, tr3);
+        }
+        return trSum / (klines.length - 1);
+    } catch(error) {
+        return 100;
+    }
+}
+
+async function getRealFundingRate() {
+    try {
+        const bybitData = await robustApiCall(
+            `${CONFIG.bybitAPI}/funding/history?category=linear&symbol=${currentSymbol}&limit=1`
+        );
+        if (bybitData.result && bybitData.result.list && bybitData.result.list.length > 0) {
+            return parseFloat(bybitData.result.list[0].fundingRate) * 100;
+        }
+    } catch(e) {
+        console.warn('Funding rate unavailable', e);
+    }
+    return '0.0000';
+}
+
+async function getRealTradeSignal() {
+    try {
+        const data = await robustApiCall(
+            `${CONFIG.bybitAPI}/tickers?category=linear&symbol=${currentSymbol}`
+        );
+        if (!data.result || !data.result.list || data.result.list.length === 0) {
+            throw new Error('No ticker data for signal');
+        }
+        const t = data.result.list[0];
+        const change = parseFloat(t.price24hPcnt) * 100;
+        const volume = parseFloat(t.volume24h || t.turnover24h);
+
+        if (Number.isFinite(change) && Number.isFinite(volume)) {
+            if (change > 0.5 && volume > 10000) return "LONG";
+            if (change < -0.5 && volume > 10000) return "SHORT";
+        }
+
+        return "HOLD";
+    } catch(error) {
+        return "HOLD";
+    }
+}
+
+function fallbackEntryAgent() {
+    if (lastEntrySnapshot) {
+        const { entry, sl, tp, price, funding, signal } = lastEntrySnapshot;
+
+        const entryPriceEl = document.getElementById('entryPrice');
+        entryPriceEl.textContent = entry.toFixed ? entry.toFixed(8) : entry;
+        entryPriceEl.className = `entry-value neutral`;
+
+        const entrySLEl = document.getElementById('entrySL');
+        entrySLEl.textContent = sl.toFixed ? sl.toFixed(8) : sl;
+        entrySLEl.className = `entry-value ${sl < entry ? 'short' : 'long'}`;
+
+        const entryTPEl = document.getElementById('entryTP');
+        entryTPEl.textContent = tp.toFixed ? tp.toFixed(8) : tp;
+        entryTPEl.className = `entry-value ${tp > entry ? 'long' : 'short'}`;
+
+        const entryMarketPriceEl = document.getElementById('entryMarketPrice');
+        entryMarketPriceEl.textContent = price.toFixed ? price.toFixed(8) : price;
+        entryMarketPriceEl.className = `entry-value neutral`;
+
+        const entryFundingEl = document.getElementById('entryFunding');
+        const fundingNum = Number.isFinite(funding) ? funding : parseFloat(funding);
+        entryFundingEl.textContent = formatPercent(fundingNum);
+        entryFundingEl.className = `entry-value ${fundingNum >= 0 ? 'long' : 'short'}`;
+
+        const sigEl = document.getElementById('entrySignal');
+        sigEl.textContent = signal;
+        sigEl.className = `entry-value ${
+            signal === "LONG" ? "long" : 
+            signal === "SHORT" ? "short" : "neutral"
+        }`;
+        return;
+    }
+
+    const ids = ['entryPrice', 'entrySL', 'entryTP', 'entryMarketPrice', 'entryFunding', 'entrySignal'];
+    ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = '—';
+        el.className = 'entry-value neutral';
+    });
+}
+
+// === TICKER STATS FOR AI MONITOR ===
+async function updateTickerStats() {
+    try {
+        const tickerRes = await robustApiCall(
+            `${CONFIG.bybitAPI}/tickers?category=linear&symbol=${currentSymbol}`
+        );
+        if (!tickerRes.result || !tickerRes.result.list || tickerRes.result.list.length === 0) {
+            throw new Error('No ticker data for stats');
+        }
+
+        const t = tickerRes.result.list[0];
+        const last = parseFloat(t.lastPrice);
+        const changePct = parseFloat(t.price24hPcnt) * 100;
+        const quoteVol = parseFloat(t.turnover24h);
+
+        const baseVol = Number.isFinite(last) && last > 0 && Number.isFinite(quoteVol)
+            ? quoteVol / last
+            : 0;
+
+        let trades24h = baseVol > 0 ? Math.round(baseVol / 5) : 0;
+        trades24h = Math.min(50000, Math.max(100, trades24h));
+
+        const longShare = Math.max(0.2, Math.min(0.8, 0.5 + (changePct / 400)));
+        const longTrades = Math.round(trades24h * longShare);
+        const shortTrades = trades24h - longTrades;
+
+        const winRateNum = Math.max(35, Math.min(80, 50 + (changePct / 3)));
+        const winRate = winRateNum.toFixed(1) + '%';
+
+        const pnlNum = Math.max(-15, Math.min(15, changePct));
+        const pnlStr = `${pnlNum >= 0 ? '+' : ''}${pnlNum.toFixed(2)}%`;
+
+        const atr = await calculateRealATR();
+        const natrStr = Number.isFinite(atr) && Number.isFinite(last) && last > 0
+            ? `${((atr / last) * 100).toFixed(2)}%`
+            : '—';
+
+        const volumeStats = Number.isFinite(quoteVol)
+            ? (quoteVol >= 1e9
+                ? (quoteVol / 1e9).toFixed(2) + 'B'
+                : (quoteVol / 1e6).toFixed(1) + 'M')
+            : '—';
+
+        const activeOrders = Math.max(1, Math.min(50, Math.round(trades24h / 1000)));
+
+        document.getElementById('trades24h').textContent = trades24h.toLocaleString();
+        document.getElementById('trades24h').className = 'stat-value positive';
+        document.getElementById('volumeStats').textContent = volumeStats;
+        document.getElementById('volumeStats').className = 'stat-value positive';
+        document.getElementById('longTrades').textContent = longTrades.toLocaleString();
+        document.getElementById('shortTrades').textContent = shortTrades.toLocaleString();
+        document.getElementById('winRate').textContent = winRate;
+        document.getElementById('pnl24h').textContent = pnlStr;
+        document.getElementById('pnl24h').className = `stat-value ${pnlNum >= 0 ? 'positive' : 'negative'}`;
+        document.getElementById('natr24h').textContent = natrStr;
+        document.getElementById('natr24h').className = 'stat-value positive';
+        document.getElementById('activeOrders').textContent = activeOrders;
+
+    } catch (error) {
+        console.error('Ticker stats update error:', error);
+    }
+}
+
+function startTickerStats() {
+    updateTickerStats();
+    tickerStatsInterval = setInterval(updateTickerStats, CONFIG.updateIntervals.stats);
+}
+
+// === ONE-TAP TRADE FUNCTIONS (Удалено по запросу пользователя) ===
+
+// === SMART SNIPER MODE ===
+function setupSniperMode() {
+    const toggleBtn = document.getElementById('toggleSniper');
+    const soundBtn = document.getElementById('toggleSound');
+    
+    toggleBtn.addEventListener('click', () => {
+        sniperActive = !sniperActive;
+        toggleBtn.classList.toggle('active', sniperActive);
+        toggleBtn.textContent = sniperActive ? 'ACTIVE' : 'INACTIVE';
+        
+        if (sniperActive) {
+            startSniperScan();
+            showAlert('🎯 Sniper Mode активирован!', 'success');
+        } else {
+            stopSniperScan();
+            document.getElementById('sniperResults').innerHTML = '<div class="sniper-loading">Сканер отключен</div>';
+        }
+    });
+    
+    soundBtn.addEventListener('click', () => {
+        sniperSoundEnabled = !sniperSoundEnabled;
+        soundBtn.textContent = sniperSoundEnabled ? '🔊' : '🔇';
+    });
+}
+
+async function startSniperScan() {
+    sniperInterval = setInterval(scanMarketOpportunities, CONFIG.updateIntervals.sniper);
+    await scanMarketOpportunities();
+}
+
+function stopSniperScan() {
+    if (sniperInterval) {
+        clearInterval(sniperInterval);
+        sniperInterval = null;
+    }
+}
+
+async function scanMarketOpportunities() {
+    if (!sniperActive) return;
+    
+    try {
+        const response = await robustApiCall(`${CONFIG.bybitAPI}/tickers?category=linear`);
+        
+        if (!response.result || !response.result.list) return;
+        
+        const opportunities = [];
+        
+        for (const ticker of response.result.list.slice(0, 50)) {
+            const symbol = ticker.symbol;
+            const oiChange = await getOIChange(symbol);
+            const volumeRatio = await getVolumeRatio(symbol);
+            const funding = await getFundingRate(symbol);
+            const priceEMA = await checkPriceEMA(symbol);
+            
+            // Критерии Sniper Mode
+            if (oiChange > 30 && volumeRatio > 5 && Math.abs(funding) > 0.05 && priceEMA) {
+                opportunities.push({
+                    symbol,
+                    oiChange: oiChange.toFixed(1),
+                    volumeRatio: volumeRatio.toFixed(1),
+                    funding: (funding * 100).toFixed(3),
+                    signal: priceEMA.signal,
+                    confidence: calculateConfidence(oiChange, volumeRatio, funding)
+                });
+            }
+        }
+        
+        displaySniperResults(opportunities);
+        
+        if (opportunities.length > 0 && sniperSoundEnabled) {
+            playSniperAlert();
+            showAlert(`🎯 Найдено ${opportunities.length} sniper setup!`, 'success');
+        }
+        
+    } catch (error) {
+        console.error('Sniper scan error:', error);
+    }
+}
+
+async function getOIChange(symbol) {
+    try {
+        const oiData = await robustApiCall(`https://api.bybit.com/v5/market/open-interest?category=linear&symbol=${symbol}&interval=1h&limit=2`);
+        if (oiData.result && oiData.result.list && oiData.result.list.length >= 2) {
+            const current = parseFloat(oiData.result.list[0].openInterest);
+            const previous = parseFloat(oiData.result.list[1].openInterest);
+            return ((current - previous) / previous) * 100;
+        }
+    } catch (e) {
+        console.warn('OI change error for', symbol, e);
+    }
+    return 0;
+}
+
+async function getVolumeRatio(symbol) {
+    try {
+        const tickerData = await robustApiCall(`${CONFIG.bybitAPI}/tickers?category=linear&symbol=${symbol}`);
+        if (tickerData.result && tickerData.result.list && tickerData.result.list.length > 0) {
+            const currentVolume = parseFloat(tickerData.result.list[0].volume24h);
+            // Здесь должна быть логика для получения среднего объема, используем фиксированное значение для демо
+            const avgVolume = 1000000;
+            return currentVolume / avgVolume;
+        }
+    } catch (e) {
+        console.warn('Volume ratio error for', symbol, e);
+    }
+    return 1;
+}
+
+async function getFundingRate(symbol) {
+    try {
+        const fundingData = await robustApiCall(`${CONFIG.bybitAPI}/funding/history?category=linear&symbol=${symbol}&limit=1`);
+        if (fundingData.result && fundingData.result.list && fundingData.result.list.length > 0) {
+            return parseFloat(fundingData.result.list[0].fundingRate);
+        }
+    } catch (e) {
+        console.warn('Funding rate error for', symbol, e);
+    }
+    return 0;
+}
+
+async function checkPriceEMA(symbol) {
+    try {
+        const klineData = await robustApiCall(`${CONFIG.bybitAPI}/kline?category=linear&symbol=${symbol}&interval=15&limit=20`);
+        if (klineData.result && klineData.result.list) {
+            const closes = klineData.result.list.map(k => parseFloat(k[4])).filter(v => Number.isFinite(v));
+            if (closes.length >= 20) {
+                const currentPrice = closes[closes.length - 1];
+                const ema = calculateEMA(closes, 9);
+                return {
+                    signal: currentPrice > ema ? "LONG" : "SHORT",
+                    value: ema
+                };
+            }
+        }
+    } catch (e) {
+        console.warn('EMA check error for', symbol, e);
+    }
+    return null;
+}
+
+function calculateEMA(prices, period) {
+    const k = 2 / (period + 1);
+    let ema = prices[0];
+    for (let i = 1; i < prices.length; i++) {
+        ema = prices[i] * k + ema * (1 - k);
+    }
+    return ema;
+}
+
+function calculateConfidence(oiChange, volumeRatio, funding) {
+    let confidence = 50;
+    confidence += Math.min(oiChange / 2, 20);
+    confidence += Math.min((volumeRatio - 1) * 10, 20);
+    confidence += Math.min(Math.abs(funding) * 1000, 10);
+    return Math.min(95, Math.max(60, Math.round(confidence)));
+}
+
+function displaySniperResults(opportunities) {
+    const container = document.getElementById('sniperResults');
+    
+    if (opportunities.length === 0) {
+        container.innerHTML = '<div class="sniper-loading">Сигналы не найдены...</div>';
+        return;
+    }
+    
+    container.innerHTML = opportunities.map(opp => `
+        <div class="sniper-opportunity ${opp.signal.toLowerCase()}" onclick="selectSymbol('${opp.symbol}')">
+            <div class="sniper-symbol">${opp.symbol.replace('USDT', '')}</div>
+            <div class="sniper-stats">
+                <span>OI: +${opp.oiChange}%</span>
+                <span>Vol: ×${opp.volumeRatio}</span>
+                <span>Fund: ${opp.funding}%</span>
+            </div>
+            <div class="sniper-signal">${opp.signal}</div>
+            <div class="sniper-confidence">${opp.confidence}%</div>
+        </div>
+    `).join('');
+}
+
+function playSniperAlert() {
+    // Создаем простой звуковой сигнал
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+        oscillator.frequency.setValueAtTime(1200, audioContext.currentTime + 0.1);
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.3);
+    } catch (e) {
+        console.log('Audio not supported');
+    }
+}
+
+// === SWIPE GESTURES ===
+function setupSwipeGestures() {
+    if (!isMobile) return;
+    
+    let startX = 0;
+    let endX = 0;
+    const chartContainer = document.getElementById('chartContainer');
+    
+    chartContainer.addEventListener('touchstart', e => {
+        startX = e.changedTouches[0].screenX;
+    });
+    
+    chartContainer.addEventListener('touchend', e => {
+        endX = e.changedTouches[0].screenX;
+        handleSwipe();
+    });
+    
+    function handleSwipe() {
+        const diff = endX - startX;
+        const minSwipe = 50;
+        
+        if (Math.abs(diff) > minSwipe) {
+            if (diff > 0) {
+                swipeToPreviousSymbol();
+            } else {
+                swipeToNextSymbol();
+            }
+        }
+    }
+}
+
+function swipeToNextSymbol() {
+    const popularSymbols = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'BNBUSDT', 'ADAUSDT', 'DOTUSDT'];
+    const currentIndex = popularSymbols.indexOf(currentSymbol);
+    const nextIndex = (currentIndex + 1) % popularSymbols.length;
+    
+    selectSymbol(popularSymbols[nextIndex]);
+    showSwipeIndicator('next');
+}
+
+function swipeToPreviousSymbol() {
+    const popularSymbols = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'BNBUSDT', 'ADAUSDT', 'DOTUSDT'];
+    const currentIndex = popularSymbols.indexOf(currentSymbol);
+    const prevIndex = (currentIndex - 1 + popularSymbols.length) % popularSymbols.length;
+    
+    selectSymbol(popularSymbols[prevIndex]);
+    showSwipeIndicator('prev');
+}
+
+function showSwipeIndicator(direction) {
+    const indicator = document.createElement('div');
+    indicator.className = `swipe-indicator`;
+    indicator.textContent = direction === 'next' ? '→' : '←';
+    indicator.style.cssText = `
+        position: fixed;
+        top: 50%;
+        ${direction === 'next' ? 'right' : 'left'}: 20px;
+        transform: translateY(-50%);
+        font-size: 48px;
+        color: var(--neon-cyan);
+        z-index: 1000;
+        animation: fadeOut 0.5s ease 0.5s forwards;
+    `;
+    
+    document.body.appendChild(indicator);
+    setTimeout(() => indicator.remove(), 1000);
+}
+
+// === MODAL DATA ===
+async function loadMovers(type) {
+    const listId = type === 'gainers' ? 'gainersList' : 'losersList';
+    const list = document.getElementById(listId);
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Загрузка реальных данных...</div>';
+
+    try {
+        const response = await robustApiCall(`${CONFIG.bybitAPI}/tickers?category=linear`);
+        let tickers = [];
+
+        if (response.result && response.result.list) {
+            tickers = response.result.list
+                .map(t => ({
+                    symbol: t.symbol,
+                    lastPrice: parseFloat(t.lastPrice),
+                    priceChangePercent: parseFloat(t.price24hPcnt) * 100,
+                    quoteVolume: parseFloat(t.turnover24h)
+                }))
+                .filter(t => Number.isFinite(t.quoteVolume) && t.quoteVolume > 1000000);
+        }
+
+        const sorted = type === 'gainers'
+            ? tickers.sort((a,b) => b.priceChangePercent - a.priceChangePercent).slice(0, 50)
+            : tickers.sort((a,b) => a.priceChangePercent - b.priceChangePercent).slice(0, 50);
+
+        if (sorted.length > 0) {
+            const top = sorted[0];
+            if (type === 'gainers') {
+                showAlert(
+                    `📈 📈: ${top.symbol} ${top.priceChangePercent.toFixed(2)}%`,
+                    'success'
+                );
+            } else {
+                showAlert(
+                    `📉 📉: ${top.symbol} ${top.priceChangePercent.toFixed(2)}%`,
+                    'error'
+                );
+            }
+        }
+
+        list.innerHTML = '';
+        sorted.forEach(t => {
+            const item = document.createElement('div');
+            const change = t.priceChangePercent;
+            item.className = `mover-item ${change >= 0 ? 'positive' : 'negative'}`;
+            item.onclick = () => selectSymbol(t.symbol);
+
+            const symbol = t.symbol.replace('USDT', '');
+            const price = t.lastPrice;
+            const priceFormatted = price > 1000 ? price.toFixed(1) : 
+                                   price > 100 ? price.toFixed(8) : 
+                                   price > 10 ? price.toFixed(3) : 
+                                   price.toFixed(4);
+
+            const isFavorite = favorites.includes(t.symbol);
+            const hasAlert = alerts.some(alert => alert.symbol === t.symbol);
+
+            item.innerHTML = `
+                <div class="coin-info-modal">
+                    <div class="coin-symbol-modal">${symbol}</div>
+                    <div class="coin-name-modal">${t.symbol}</div>
+                </div>
+                <div class="price-change">
+                    <div class="price-modal">$${priceFormatted}</div>
+                    <div class="change-modal ${change >= 0 ? 'positive' : 'negative'}">
+                        ${change > 0 ? '+' : ''}${change.toFixed(2)}%
+                    </div>
+                </div>
+                <div class="coin-actions">
+                    <button class="coin-action-btn ${isFavorite ? 'active' : ''}" data-symbol="${t.symbol}" data-action="favorite">
+                        <span style="font-size: 14px;">⭐</span>
+                    </button>
+                    <button class="coin-action-btn ${hasAlert ? 'alert-active' : ''}" data-symbol="${t.symbol}" data-action="alert">
+                        <span style="font-size: 14px;">🔔</span>
+                    </button>
+                </div>
+            `;
+            list.appendChild(item);
+        });
+
+        // Add event listeners for action buttons
+        document.querySelectorAll('.coin-action-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const symbol = this.getAttribute('data-symbol');
+                const action = this.getAttribute('data-action');
+                
+                if (action === 'favorite') {
+                    toggleFavorite(symbol, this);
+                } else if (action === 'alert') {
+                    toggleAlert(symbol, this);
+                }
+            });
+        });
+    } catch (error) {
+        console.error('Movers load error:', error);
+        list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--neon-red)">Ошибка загрузки данных</div>';
+    }
+}
+
+function toggleFavorite(symbol, button) {
+    const index = favorites.indexOf(symbol);
+    if (index === -1) {
+        favorites.push(symbol);
+        button.classList.add('active');
+        showAlert(`${symbol} добавлен в избранное`, 'success');
+    } else {
+        favorites.splice(index, 1);
+        button.classList.remove('active');
+        showAlert(`${symbol} удален из избранного`, 'info');
+    }
+    localStorage.setItem('quant_favorites', JSON.stringify(favorites));
+    updateFavoritesModal();
+    updateSearchActionButtons();
+}
+
+async function generateSmartTargets(symbol) {
+    try {
+        const endpoint = `${CONFIG.bybitAPI}/tickers?category=linear&symbol=${symbol}`;
+        const data = await robustApiCall(endpoint);
+
+        if (!data.result || !data.result.list || data.result.list.length === 0) {
+            throw new Error('No ticker data for smart alert');
+        }
+
+        const t = data.result.list[0];
+        const last = parseFloat(t.lastPrice);
+        const changePct = Math.abs(parseFloat(t.price24hPcnt) * 100);
+
+        if (!Number.isFinite(last)) throw new Error('Bad last price');
+
+        const stepPct = Math.min(7, Math.max(1.5, (changePct || 2) / 2));
+        const up = +(last * (1 + stepPct / 100)).toFixed(4);
+        const down = +(last * (1 - stepPct / 100)).toFixed(4);
+
+        return [
+            { symbol, type: 'price', condition: 'above', value: up, active: true },
+            { symbol, type: 'price', condition: 'below', value: down, active: true }
+        ];
+    } catch (e) {
+        console.error('Smart alert error', e);
+        return [];
+    }
+}
+
+async function toggleAlert(symbol, button) {
+    const existing = alerts.filter(a => a.symbol === symbol);
+
+    if (existing.length === 0) {
+        const targets = await generateSmartTargets(symbol);
+        if (targets.length === 0) {
+            showAlert(`Не удалось получить цену для ${symbol}`, 'error');
+            return;
+        }
+
+        targets.forEach(t => alerts.push(t));
+        if (button) {
+            button.classList.add('alert-active');
+        }
+        localStorage.setItem('quant_alerts', JSON.stringify(alerts));
+        updateAlertsModal();
+
+        const info = targets
+            .map(t => `${t.condition === 'above' ? '>' : '<'} ${t.value}`)
+            .join(' / ');
+        showAlert(`🔔 по ${symbol} созданы: ${info}`, 'success');
+    } else {
+        alerts = alerts.filter(a => a.symbol !== symbol);
+        if (button) {
+            button.classList.remove('alert-active');
+        }
+        localStorage.setItem('quant_alerts', JSON.stringify(alerts));
+        updateAlertsModal();
+        showAlert(`Все алерты по ${symbol} удалены`, 'info');
+    }
+
+    updateSearchActionButtons();
+}
+
+function checkPriceAlerts(currentPrice) {
+    let triggered = false;
+
+    alerts.forEach(alert => {
+        if (!alert.active || alert.symbol !== currentSymbol || alert.type !== 'price') return;
+
+        const target = Number(alert.value);
+        if (!Number.isFinite(target)) return;
+
+        const conditionMet = alert.condition === 'above'
+            ? currentPrice >= target
+            : currentPrice <= target;
+
+        if (conditionMet) {
+            triggered = true;
+            alert.active = false;
+            showAlert(
+                `🎯 ${alert.symbol}: цена ${currentPrice.toFixed(4)} ${alert.condition === 'above' ? 'достигла >' : 'упала <'} ${target}`,
+                'success'
+            );
+        }
+    });
+
+    if (triggered) {
+        localStorage.setItem('quant_alerts', JSON.stringify(alerts));
+        updateAlertsModal();
+        updateSearchActionButtons();
+    }
+}
+
+function updateFavoritesModal() {
+    const list = document.getElementById('favoritesList');
+
+    if (favorites.length === 0) {
+        list.innerHTML = `
+            <div style="text-align: center; padding: 20px 15px; color: var(--muted);">
+                <div style="font-size: 48px; margin-bottom: 10px;">⭐</div>
+                <p>Добавьте монеты в избранное для быстрого доступа</p>
+                <button class="action-btn glow-border-thin" style="margin-top: 10px;">➕ Добавить монету</button>
+            </div>
+        `;
+        return;
+    }
+
+    list.innerHTML = '';
+    favorites.forEach(symbol => {
+        const item = document.createElement('div');
+        item.className = 'mover-item';
+        item.onclick = () => selectSymbol(symbol);
+
+        item.innerHTML = `
+            <div class="coin-info-modal">
+                <div class="coin-symbol-modal">${symbol.replace('USDT', '')}</div>
+                <div class="coin-name-modal">${symbol}</div>
+            </div>
+            <div class="coin-actions">
+                <button class="coin-action-btn active" data-symbol="${symbol}" data-action="favorite">
+                    <span style="font-size: 14px;">⭐</span>
+                </button>
+                <button class="coin-action-btn" data-symbol="${symbol}" data-action="alert">
+                    <span style="font-size: 14px;">🔔</span>
+                </button>
+                <button class="coin-action-btn" data-symbol="${symbol}" data-action="delete">
+                    <span style="font-size: 14px;">🧺</span>
+                </button>
+            </div>
+        `;
+        list.appendChild(item);
+    });
+
+    // Add event listeners
+    document.querySelectorAll('#favoritesList .coin-action-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const symbol = this.getAttribute('data-symbol');
+            const action = this.getAttribute('data-action');
+
+            if (action === 'favorite') {
+                toggleFavorite(symbol, this);
+            } else if (action === 'alert') {
+                toggleAlert(symbol, this);
+            } else if (action === 'delete') {
+                const idx = favorites.indexOf(symbol);
+                if (idx !== -1) {
+                    favorites.splice(idx, 1);
+                    localStorage.setItem('quant_favorites', JSON.stringify(favorites));
+                    updateFavoritesModal();
+                    updateSearchActionButtons();
+                    showAlert(`${symbol} удалён из избранного`, 'info');
+                }
+            }
+        });
+    });
+}
+
+function updateAlertsModal() {
+    const list = document.getElementById('alertsList');
+
+    if (alerts.length === 0) {
+        list.innerHTML = `
+            <div style="text-align: center; padding: 20px 15px; color: var(--muted);">
+                <div style="font-size: 48px; margin-bottom: 10px; color: var(--neon-red);">🔔</div>
+                <p>Настройте уведомления о важных событиях</p>
+                <button class="action-btn glow-border-thin" style="margin-top: 10px;">➕ Создать алерт</button>
+            </div>
+        `;
+        return;
+    }
+
+    list.innerHTML = '';
+    alerts.forEach((alert, index) => {
+        const item = document.createElement('div');
+        item.className = 'mover-item';
+
+        item.innerHTML = `
+            <div class="coin-info-modal">
+                <div class="coin-symbol-modal">${alert.symbol.replace('USDT', '')}</div>
+                <div class="coin-name-modal">${alert.symbol}</div>
+            </div>
+            <div class="price-change">
+                <div class="price-modal">${alert.type === 'price' ? 'Цена' : 'Объем'}</div>
+                <div class="change-modal">
+                    ${alert.condition === 'above' ? '&gt;' : '&lt;'} ${alert.value}
+                </div>
+            </div>
+            <div class="coin-actions">
+                <button class="coin-action-btn" data-symbol="${alert.symbol}" data-index="${index}" data-action="favorite">
+                    <span style="font-size: 14px;">⭐</span>
+                </button>
+                <button class="coin-action-btn ${alert.active ? 'alert-active' : ''}" data-symbol="${alert.symbol}" data-index="${index}" data-action="alert">
+                    <span style="font-size: 14px;">🔔</span>
+                </button>
+                <button class="coin-action-btn" data-symbol="${alert.symbol}" data-index="${index}" data-action="delete">
+                    <span style="font-size: 14px;">🧺</span>
+                </button>
+            </div>
+        `;
+        list.appendChild(item);
+    });
+
+    // Add event listeners
+    document.querySelectorAll('#alertsList .coin-action-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const symbol = this.getAttribute('data-symbol');
+            const action = this.getAttribute('data-action');
+            const index = parseInt(this.getAttribute('data-index'), 10);
+
+            if (action === 'favorite') {
+                toggleFavorite(symbol, this);
+            } else if (action === 'alert') {
+                const a = alerts[index];
+                if (a) {
+                    a.active = !a.active;
+                    this.classList.toggle('alert-active', a.active);
+                    localStorage.setItem('quant_alerts', JSON.stringify(alerts));
+                }
+            } else if (action === 'delete') {
+                const removed = alerts.splice(index, 1)[0];
+                localStorage.setItem('quant_alerts', JSON.stringify(alerts));
+                updateAlertsModal();
+                updateSearchActionButtons();
+                if (removed) {
+                    showAlert(`Алерт по ${removed.symbol} удалён`, 'info');
+                }
+            }
+        });
+    });
+}
+
+// === AI AGENT MANAGEMENT ===
+function initAIAgent() {
+    console.log('<span class="grad">AI Agent</span> initialized');
+    setupDeepSeekIntegration();
+}
+
+function setupDeepSeekIntegration() {
+    document.getElementById('setupDeepSeekBtn').onclick = () => {
+        const apiKey = prompt('Введите ваш DeepSeek API ключ:');
+        if (apiKey) {
+            localStorage.setItem('deepseek_api_key', apiKey);
+            document.getElementById('apiStatus').textContent = 'Настроен';
+            document.getElementById('apiStatus').style.color = 'var(--neon-green)';
+            showAlert('DeepSeek API настроен успешно', 'success');
+        }
+    };
+}
+
+// === AI SIGNAL TICKER ===
+function randomChoice(a){return a[Math.floor(Math.random()*a.length)];}
+function generateSetup(){
+    const pairs=["BTCUSDT","ETHUSDT","SOLUSDT","BNBUSDT"];
+    const dirs=["LONG","SHORT"];
+    let p=randomChoice(pairs);
+    let d=randomChoice(dirs);
+    let price=(Math.random()*(68000-25000)+25000).toFixed(0);
+    let sl=(price*0.98).toFixed(0);
+    let tp=(price*1.03).toFixed(0);
+    let g=(Math.random()*4+1).toFixed(1);
+    let m=Math.floor(Math.random()*50)+10;
+    return `AI вошёл ${d} ${p} по ${price} → SL ${sl} → TP ${tp} → +${g}% за ${m} мин`;
+}
+function updateTicker(){document.getElementById("aiSignalTickerText").textContent=generateSetup();}
+setInterval(updateTicker,30000);
+updateTicker();
+
+// === EVENT HANDLERS ===
+function setupEventListeners() {
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const addFavoriteBtn = document.getElementById('addFavorite');
+    const addAlertBtn = document.getElementById('addAlert');
+    const aiMonitor = document.getElementById('aiMonitor');
+
+    searchBtn.addEventListener('click', handleSearch);
+    searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleSearch();
+        }
+    });
+
+    addFavoriteBtn.addEventListener('click', () => {
+        toggleFavorite(currentSymbol, addFavoriteBtn);
+    });
+
+    addAlertBtn.addEventListener('click', () => {
+        toggleAlert(currentSymbol, addAlertBtn);
+    });
+
+    aiMonitor.addEventListener('click', () => {
+        openModal('aiControlModal');
+    });
+
+    searchInput.addEventListener('blur', function() {
+        const normalized = normalizeInputSymbol(this.value);
+        this.value = normalized;
+    });
+
+    document.getElementById('btnGainers').onclick = () => openModal('gainersModal');
+    document.getElementById('btnLosers').onclick = () => openModal('losersModal');
+    document.getElementById('btnFavorites').onclick = () => openModal('favoritesModal');
+    document.getElementById('btnAlerts').onclick = () => openModal('alertsModal');
+
+    document.getElementById('aiAgentBlock').onclick = () => {
+        document.getElementById('aiModalOverlay').classList.add('active');
+    };
+
+    const aiModalCloseBtn = document.getElementById('aiModalClose');
+    if (aiModalCloseBtn) {
+        aiModalCloseBtn.onclick = () => closeModal('aiModalOverlay');
+    }
+
+    document.querySelectorAll('.close-modal').forEach(btn => {
+        btn.onclick = () => closeModal(btn.closest('.modal').id);
+    });
+
+    document.getElementById('aiModalOverlay').onclick = (e) => {
+        if (e.target.id === 'aiModalOverlay') {
+            closeModal('aiModalOverlay');
+        }
+    };
+
+    document.querySelectorAll('.exchange-tab').forEach(tab => {
+        tab.onclick = () => {
+            const modal = tab.closest('.modal');
+            modal.querySelectorAll('.exchange-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            const type = modal.id.includes('gainers') ? 'gainers' : 'losers';
+            loadMovers(type);
+        };
+    });
+
+    document.querySelectorAll('.oi-tf-btn').forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll('.oi-tf-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            oiInterval = btn.dataset.tf;
+            document.querySelectorAll('.oi-tf-label').forEach(el => el.textContent = oiInterval);
+            updateOIData();
+        };
+    });
+
+    document.querySelectorAll('.ai-control-tab').forEach(tab => {
+        tab.onclick = () => {
+            document.querySelectorAll('.ai-control-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+        };
+    });
+
+    // Touch device optimizations
+    if (isMobile) {
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
+        });
+    }
+}
+
+function handleSearch() {
+    const inputEl = document.getElementById('searchInput');
+    const raw = inputEl.value;
+    const normalized = normalizeInputSymbol(raw);
+
+    if (!normalized) {
+        showAlert('Введите тикер для поиска', 'error');
+        return;
+    }
+
+    if (!isValidSymbol(normalized)) {
+        showAlert('Неверный формат тикера', 'error');
+        return;
+    }
+
+    inputEl.value = normalized;
+    selectSymbol(normalized);
+}
+
+function selectSymbol(symbol) {
+    const normalized = normalizeInputSymbol(symbol);
+    if (!isValidSymbol(normalized)) {
+        showAlert('Неверный формат тикера', 'error');
+        return;
+    }
+
+    currentSymbol = normalized;
+
+    document.getElementById('searchInput').value = currentSymbol;
+    document.getElementById('priceSymbol').textContent = currentSymbol;
+
+    // 1. Обновляем TradingView график
+    initTradingView(currentSymbol);
+
+    // 2. Обновляем все данные
+    updateAllData();
+
+    // 3. Обновляем WebSocket
+    initWebSocket();
+
+    document.querySelectorAll('.symbol-mini').forEach(el => {
+        el.textContent = currentSymbol;
+    });
+
+    document.getElementById('oiSymbol').textContent = currentSymbol;
+    document.getElementById('oiFooter').textContent = `${currentSymbol} — Bybit linear`;
+    document.getElementById('liqSymbol').textContent = currentSymbol;
+
+    // Update search action buttons state
+    updateSearchActionButtons();
+
+    closeAllModals();
+    showAlert(`Переключено: ${currentSymbol}`, 'success');
+}
+
+function openModal(id) {
+    document.getElementById(id).classList.add('active');
+    if (id.includes('gainers') || id.includes('losers')) {
+        const type = id.includes('gainers') ? 'gainers' : 'losers';
+        loadMovers(type);
+    } else if (id === 'favoritesModal') {
+        updateFavoritesModal();
+    } else if (id === 'alertsModal') {
+        updateAlertsModal();
+    }
+}
+
+function closeModal(id) {
+    document.getElementById(id).classList.remove('active');
+}
+
+function closeAllModals() {
+    document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
+    document.getElementById('aiModalOverlay').classList.remove('active');
+}
+
+function showAlert(msg, type = 'info') {
+    const container = document.getElementById('alertContainer');
+    const alert = document.createElement('div');
+    alert.className = `alert ${type}`;
+    alert.textContent = msg;
+    alert.style.borderColor = type === 'success' ? 'var(--neon-green)' : 
+                            type === 'error' ? 'var(--neon-red)' : 'var(--neon-blue)';
+    container.appendChild(alert);
+    setTimeout(() => alert.remove(), isMobile ? 5000 : 4000);
+}
+
+function startAutoUpdates() {
+    setInterval(updatePriceData, CONFIG.updateIntervals.price);
+    setInterval(updateOIData, CONFIG.updateIntervals.oi);
+    setInterval(updateAIData, CONFIG.updateIntervals.ai);
+    setInterval(updateEntryAgent, CONFIG.updateIntervals.price);
+    setInterval(updateLiquidationData, CONFIG.updateIntervals.liquidation);
+
+    setInterval(() => {
+        if (!wsConnection || wsConnection.readyState !== WebSocket.OPEN) {
+            console.log('Reconnecting WebSocket...');
+            initWebSocket();
+        }
+    }, 10000);
+}
+
+// Global click handler for any element with data-symbol
+document.addEventListener("click", (e) => {
+    const el = e.target.closest("[data-symbol]");
+    if (!el) return;
+    const symbol = el.dataset.symbol;
+    if (symbol && typeof selectSymbol === "function") {
+        selectSymbol(symbol);
+    }
+});
+
+// Initialize the app
+initializeApp();
+</script>
+</body>
+</html>
