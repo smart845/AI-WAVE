@@ -1,18 +1,12 @@
 {
   "functions": {
     "api/bybit/market/[...path].js": {
-      "runtime": "nodejs20.x",
+      "runtime": "nodejs20",
       "maxDuration": 10
     }
   },
   "routes": [
-    {
-      "src": "/api/bybit/market/(.*)",
-      "dest": "/api/bybit/market/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
+    { "src": "/api/bybit/market/(.*)", "dest": "/api/bybit/market/$1" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
